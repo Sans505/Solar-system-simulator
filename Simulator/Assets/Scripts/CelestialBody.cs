@@ -13,6 +13,7 @@ public class CelestialBody : MonoBehaviour
     
     void Awake()
     {
+        gameObject.tag = "Selectable";
         velocity = initialVelocity;
         rb = GetComponent<Rigidbody> ();
         mass = rb.mass;

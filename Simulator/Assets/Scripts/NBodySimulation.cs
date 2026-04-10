@@ -5,12 +5,23 @@ public class NBodySimulation : MonoBehaviour
 {
     CelestialBody[] bodies;
 
+    public float timeScale = 1;
+
     void Awake ()
     {
         bodies = FindObjectsOfType<CelestialBody>()
             .OrderBy(o => o.id)
             .ToArray();
         Time.fixedDeltaTime = Universe.physicsTimeStep;
+        Time.timeScale = timeScale;
+    }
+
+    [ContextMenu("Cambiar tiempo")]
+    private void changrTimeButton() {
+        changeTimeScale(timeScale);
+    }
+    public void changeTimeScale(float newTimeScale) {
+        Time.timeScale = newTimeScale;
     }
 
     void FixedUpdate()
@@ -91,7 +102,7 @@ public class NBodySimulation : MonoBehaviour
 
         public VirtualBody (CelestialBody body) {
             position = body.transform.position;
-            velocity = body.initialVelocity;
+            velocity = body.velocity;
             mass = body.mass;
         }
     }
