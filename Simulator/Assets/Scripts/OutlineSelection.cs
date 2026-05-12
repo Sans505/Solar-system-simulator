@@ -62,7 +62,7 @@ public class OutlineSelection : MonoBehaviour
                 doubleSelected = true;
             }
             lastClickTime = Time.unscaledTime;
-            Debug.Log(lastClickTime);
+            //Debug.Log(lastClickTime);
 
             if (highlight)
             {
@@ -84,7 +84,7 @@ public class OutlineSelection : MonoBehaviour
                     selection.GetComponent<Outline>().enabled = false;
                     selection = null;
 
-                    selectedBodyManager.Deselect();
+                    //selectedBodyManager.Deselect();
                 }
             }
         }

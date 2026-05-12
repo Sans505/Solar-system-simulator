@@ -30,11 +30,12 @@ public class ArrowGenerator : MonoBehaviour
 
     Mesh mesh;
 
-    void Start()
+    void Awake()
     {
         //make sure Mesh Renderer has a material
         mesh = new Mesh();
         this.GetComponent<MeshFilter>().mesh = mesh;
+        setSettings(1, Color.white);
         GenerateArrow();
     }
 
@@ -58,7 +59,6 @@ public class ArrowGenerator : MonoBehaviour
     //}
 
     void OnValidate() {
-        Start();
         GenerateArrow();
     }
 
