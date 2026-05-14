@@ -80,7 +80,7 @@ public class AxisManager : MonoBehaviour
         axisZGenerator.GenerateArrow();
         directionArrowGenerator.GenerateArrow();
         directionArrow.SetActive(false);
-        showDirectionArrow();
+        //showDirectionArrow();
 
     }
 

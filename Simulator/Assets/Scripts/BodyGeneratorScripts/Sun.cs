@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Sun : MonoBehaviour
+public class Sun : MonoBehaviour, SharedSettings
 {
     public bool autoUpdate = true;
     public SunSettings sunSettings;
@@ -49,5 +49,10 @@ public class Sun : MonoBehaviour
 
         Renderer renderer = sphere.GetComponent<Renderer>();
         renderer.material = sunMaterial;
+    }
+
+    public float getRadius()
+    {
+        return sunSettings.sunRadius;
     }
 }

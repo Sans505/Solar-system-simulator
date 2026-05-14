@@ -39,7 +39,10 @@ public class OrbitLine : MonoBehaviour
             return;
         }
         framesElapsed = 0;
-        UpdateOrbit();
+        if (lastBodyPositions != null)
+        {
+            UpdateOrbit();
+        }
     }
 
     public void DrawOrbit()

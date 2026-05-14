@@ -5,6 +5,7 @@ public class SelectedBodyManager : MonoBehaviour
 {
     public GameObject selectedBody;
     public CelestialBody selectedCelestialBody;
+    private SelectionMode mode;
 
     [SerializeField]
     private NBodySimulation simulator;
@@ -13,6 +14,8 @@ public class SelectedBodyManager : MonoBehaviour
     [SerializeField]
     private GameObject velocityArrow;
     [SerializeField]
+    private GameObject gizmos;
+    [SerializeField]
     private CameraController cameraController;
 
     private GameObject[] forceArrows;
@@ -20,36 +23,53 @@ public class SelectedBodyManager : MonoBehaviour
 
     void Update() {
         if (selectedBody) {
-            velocityArrow.transform.position = selectedBody.transform.position;
-            velocityArrow.transform.up = selectedCelestialBody.velocity.normalized;
-            
-            
-            Vector3[] forces = simulator.getForceVectors(selectedCelestialBody);
-
-            float[] forcesMagnitud = new float[forces.Length];
-
-            for (int i = 0; i < forces.Length; i++) {
-                forcesMagnitud[i] = forces[i].sqrMagnitude;
-            }
-
-            float[] normalizedForcesMagnitud = Normalizar(forcesMagnitud);
-
-            float objRadius = 0f;
-            Planet planet = selectedBody.GetComponent<Planet>();
-            Sun sun = selectedBody.GetComponent<Sun>();
-            if (planet) {
-                objRadius = planet.shapeSettings.planetRadius;
-            } else if (sun) {
-                objRadius = sun.sunSettings.sunRadius;
-            }
-
-            for (int i = 0; i < forces.Length; i++) {
-
-                forceArrows[i].transform.localScale = (normalizedForcesMagnitud[i] * Vector3.one + Vector3.one) * objRadius;
-                forceArrows[i].transform.position = selectedBody.transform.position;
-                forceArrows[i].transform.up = forces[i].normalized;
+            switch(mode)
+            {
+                case SelectionMode.VelocityVector:
+                    UpdateVelocityVector();
+                    break;
+                case SelectionMode.Gizmos:
+                    UpdateGizmos();
+                    break;
+                case SelectionMode.ForcesVector:
+                    UpdateForcesVector();
+                    UpdateVelocityVector();
+                    break;
             }
         }
+    }
+
+    private void UpdateVelocityVector()
+    {
+        velocityArrow.transform.position = selectedBody.transform.position;
+        velocityArrow.transform.up = selectedCelestialBody.velocity.normalized;
+    }
+
+    private void UpdateForcesVector()
+    {
+        Vector3[] forces = simulator.getForceVectors(selectedCelestialBody);
+
+        float[] forcesMagnitud = new float[forces.Length];
+
+        for (int i = 0; i < forces.Length; i++) {
+            forcesMagnitud[i] = forces[i].sqrMagnitude;
+        }
+
+        float[] normalizedForcesMagnitud = Normalizar(forcesMagnitud);
+
+        float objRadius = selectedBody.GetComponent<SharedSettings>().getRadius();
+
+        for (int i = 0; i < forces.Length; i++) {
+
+            forceArrows[i].transform.localScale = (normalizedForcesMagnitud[i] * Vector3.one + Vector3.one);
+            forceArrows[i].transform.position = selectedBody.transform.position + forces[i].normalized * objRadius;
+            forceArrows[i].transform.up = forces[i].normalized;
+        }
+    }
+
+    private void UpdateGizmos()
+    {
+        gizmos.transform.position = selectedBody.transform.position;
     }
 
     public void SelectBody(GameObject newBody, bool isDoubleSelected) {
@@ -59,10 +79,12 @@ public class SelectedBodyManager : MonoBehaviour
         selectedCelestialBody = selectedBody.GetComponent<CelestialBody>();
         orbitLine.bodyId = selectedCelestialBody.id;
 
-        orbitLine.DrawOrbit();
-        Debug.Log("Entro111");
+        //orbitLine.DrawOrbit();
         showVelocityArrow();
         showForceVectors();
+        //showGizmo();
+        mode = SelectionMode.ForcesVector;
+
 
         this.isDoubleSelected = isDoubleSelected;
         if (isDoubleSelected) {
@@ -72,14 +94,7 @@ public class SelectedBodyManager : MonoBehaviour
 
     private void showVelocityArrow() {
 
-        float objRadius = 0f;
-        Planet planet = selectedBody.GetComponent<Planet>();
-        Sun sun = selectedBody.GetComponent<Sun>();
-        if (planet) {
-            objRadius = planet.shapeSettings.planetRadius;
-        } else if (sun) {
-            objRadius = sun.sunSettings.sunRadius;
-        }
+        float objRadius = selectedBody.GetComponent<SharedSettings>().getRadius();
 
         velocityArrow.transform.localScale = Vector3.one * objRadius * 0.6f;
         velocityArrow.SetActive(true);
@@ -120,6 +135,15 @@ public class SelectedBodyManager : MonoBehaviour
         return colors;
     }
 
+    private void showGizmo()
+    {
+        gizmos.SetActive(true);
+        gizmos.transform.position = selectedBody.transform.position;
+
+        float objRadius = selectedBody.GetComponent<SharedSettings>().getRadius();
+        gizmos.transform.localScale = objRadius * Vector3.one;
+    }
+
     float[] Normalizar(float[] valores)
     {
         float min = valores.Min();
@@ -155,6 +179,14 @@ public class SelectedBodyManager : MonoBehaviour
                 Destroy(arrow);
             }
         }
+    }
+
+    enum SelectionMode
+    {
+        Orbit,
+        VelocityVector,
+        ForcesVector,
+        Gizmos
     }
     
 }

@@ -190,14 +190,7 @@ public class CameraController : MonoBehaviour {
     public void orbitObject(GameObject obj) {
         lookAtTransform = obj.transform;
 
-        float objRadius = 0f;
-        Planet planet = obj.GetComponent<Planet>();
-        Sun sun = obj.GetComponent<Sun>();
-        if (planet) {
-            objRadius = planet.shapeSettings.planetRadius;
-        } else if (sun) {
-            objRadius = sun.sunSettings.sunRadius;
-        }
+        float objRadius = obj.GetComponent<SharedSettings>().getRadius();
 
         minOrbitRadius = objRadius * 1.3f;
         orbitRadius = objRadius * 3f;

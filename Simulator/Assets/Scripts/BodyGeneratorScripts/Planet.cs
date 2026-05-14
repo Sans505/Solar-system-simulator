@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Planet : MonoBehaviour {
+public class Planet : MonoBehaviour, SharedSettings {
 
     [Range(2,256)]
     public int resolution = 10;
@@ -106,5 +106,10 @@ public class Planet : MonoBehaviour {
         {
             face.UpdateUVs(colourGenerator);
         }
+    }
+
+    public float getRadius()
+    {
+        return shapeSettings.planetRadius;
     }
 }
