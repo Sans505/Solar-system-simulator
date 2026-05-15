@@ -16,11 +16,15 @@ public class NBodySimulation : MonoBehaviour
         Time.timeScale = timeScale;
     }
 
-    [ContextMenu("Cambiar tiempo")]
-    private void changrTimeButton() {
-        changeTimeScale(timeScale);
+    public void PauseSimulation() {
+        Time.timeScale = 0;
     }
-    public void changeTimeScale(float newTimeScale) {
+    public void ResumeSimulation() {
+        Time.timeScale = timeScale;
+    }
+
+    public void ChangeTimeScale(float newTimeScale) {
+        timeScale = newTimeScale;
         Time.timeScale = newTimeScale;
     }
 

@@ -17,6 +17,8 @@ public class GizmoManager : MonoBehaviour
     private Camera camera;
     [SerializeField]
     private OutlineSelection outlineSelection;
+    [SerializeField]
+    private OrbitLine orbitLine;
 
     private bool draggingObject;
     private GameObject moveAxisGO;
@@ -189,7 +191,7 @@ public class GizmoManager : MonoBehaviour
             axisXGenerator.ChangeColorTemporaly(Color.gray);
             axisYGenerator.ChangeColorTemporaly(Color.gray);
         }
-
+        orbitLine.Clear();
         draggingObject = true;
     }
 
@@ -198,5 +200,6 @@ public class GizmoManager : MonoBehaviour
         axisYGenerator.ResetColor();
         axisZGenerator.ResetColor();
         outlineSelection.Enable();
+        orbitLine.DrawOrbit();
     }
 }

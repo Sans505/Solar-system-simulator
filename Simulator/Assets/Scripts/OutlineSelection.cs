@@ -80,7 +80,7 @@ public class OutlineSelection : MonoBehaviour
                 // Gizmo
                 if (highlight.CompareTag("Gizmo")) {
                     ArrowGenerator arrow = highlight.GetComponent<ArrowGenerator>();
-                    Debug.Log("Comenzar movimiento");
+                    //Debug.Log("Comenzar movimiento");
                     selectedBodyManager.dragObjectWithGizmo(arrow);
                 }
                 // Selection
@@ -92,7 +92,7 @@ public class OutlineSelection : MonoBehaviour
                         doubleSelected = true;
                     }
                     lastClickTime = Time.unscaledTime;
-                    //Debug.Log(lastClickTime);
+                    Debug.Log(lastClickTime);
                     if (selection != null)
                     {
                         selection.GetComponent<Outline>().enabled = false;
