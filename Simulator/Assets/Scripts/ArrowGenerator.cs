@@ -23,35 +23,44 @@ public class ArrowGenerator : MonoBehaviour
     public float tipLength = defaultTipLength;
     public float tipWidth = defaultTipWidth;
 
+    public Color color = Color.white;
+    public Material material;
+
     [System.NonSerialized]
     public List<Vector3> vertices;
     [System.NonSerialized]
     public List<int> triangles;
 
     Mesh mesh;
+    CapsuleCollider collider;
 
     void Awake()
     {
         //make sure Mesh Renderer has a material
         mesh = new Mesh();
+        if (!collider) {
+            collider = gameObject.AddComponent<CapsuleCollider>();
+            collider.isTrigger = true;
+        }
         this.GetComponent<MeshFilter>().mesh = mesh;
-        setSettings(1, Color.white);
+        setSettings(1, color);
         GenerateArrow();
     }
 
-    public void setSettings(float scale, Color color) {
+    public void setSettings(float scale, Color col) {
         stemLength = defaultStemLength * scale;
         stemWidth = defaultStemWidth * scale;
         segments = defaultSegments;
         tipLength = defaultTipLength * scale;
         tipWidth = defaultTipWidth * scale;
+        color = col;
 
-        Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-        mat.color = color;
-        mat.EnableKeyword("_EMISSION");
-        mat.SetColor("_EmissionColor", color * 1.5f);
+        material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+        material.color = color;
+        material.EnableKeyword("_EMISSION");
+        material.SetColor("_EmissionColor", color * 1.5f);
 
-        GetComponent<MeshRenderer>().material = mat;
+        GetComponent<MeshRenderer>().material = material;
     }
     //void Update()
     //{
@@ -152,8 +161,27 @@ public class ArrowGenerator : MonoBehaviour
         }
 
         //assign lists to mesh.
-        mesh.vertices = vertices.ToArray();
-        mesh.triangles = triangles.ToArray();
-        mesh.RecalculateNormals();
+        if (mesh) {
+            mesh.vertices = vertices.ToArray();
+            mesh.triangles = triangles.ToArray();
+            mesh.RecalculateNormals();
+
+            collider.height = stemLength + tipLength;      
+            collider.radius = stemWidth / 2;
+            collider.center = Vector3.zero + Vector3.up * ((stemLength + tipLength) / 2); 
+            collider.direction = 1; 
+        }
+    }
+
+    public void Glow() {
+        material.SetColor("_EmissionColor", color * 2f);
+    }
+    public void ResetColor() {
+        material.color = color;
+        material.SetColor("_EmissionColor", color * 1.5f);
+    }
+    public void ChangeColorTemporaly(Color col) {
+        material.color = col;
+        material.SetColor("_EmissionColor", col);
     }
 }
