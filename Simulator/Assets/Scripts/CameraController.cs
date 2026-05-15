@@ -12,7 +12,7 @@ public class CameraController : MonoBehaviour {
     public float lerpDuration = 6f;
     public float lerpIntensity = 3f;
 
-    private Transform lookAtTransform;
+    public Transform lookAtTransform;
 
     private Camera cam;
     private Vector3 anchorPoint;
@@ -190,17 +190,10 @@ public class CameraController : MonoBehaviour {
     public void orbitObject(GameObject obj) {
         lookAtTransform = obj.transform;
 
-        float objRadius = 0f;
-        Planet planet = obj.GetComponent<Planet>();
-        Sun sun = obj.GetComponent<Sun>();
-        if (planet) {
-            objRadius = planet.shapeSettings.planetRadius;
-        } else if (sun) {
-            objRadius = sun.sunSettings.sunRadius;
-        }
+        float objRadius = obj.GetComponent<SharedSettings>().getRadius();
 
         minOrbitRadius = objRadius * 1.3f;
-        orbitRadius = objRadius * 3f;
+        orbitRadius = objRadius * 4f;
         yaw = transform.eulerAngles.y;
         pitch = transform.eulerAngles.x;
 

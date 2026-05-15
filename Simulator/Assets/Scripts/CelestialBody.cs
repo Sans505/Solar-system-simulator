@@ -9,6 +9,7 @@ public class CelestialBody : MonoBehaviour
     public Vector3 initialVelocity;
     public Vector3 initialRotationVelocity;
     public Vector3 velocity { get; private set; }
+    public Vector3 acceleration { get; private set; }
     Rigidbody rb;
     
     void Awake()
@@ -58,7 +59,7 @@ public class CelestialBody : MonoBehaviour
                 Vector3 forceDir = (otherBody.GetComponent<Rigidbody>().position - pos).normalized;
                 // Calcula el vector de fuerza utilizando la fórmula universal de gravedad
                 Vector3 force = forceDir * Universe.gravitationalConstant * mass * otherBody.mass / sqrDst;
-                Vector3 acceleration = force / mass;
+                acceleration = force / mass;
                 newVelocity += acceleration * timeStep;
             }   
         }
