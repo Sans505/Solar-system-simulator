@@ -1,37 +1,33 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.UI; // 👈 ¡IMPORTANTE! Añade esto arriba para poder usar el componente Button
-
+using UnityEngine.UI; 
 public class ListaRuidos : MonoBehaviour
 {
     // Contenedor del Scroll View
     public Transform contenedorContent;
 
-    // Prefab (El archivo azul del Project)
+    // Prefab
     public GameObject bloqueRuidoPrefab;
 
     public void AñadirNuevoRuido()
     {
         if (bloqueRuidoPrefab != null && contenedorContent != null)
         {
-            // 1. Creamos el clon
+            // Clon
             GameObject nuevoRuido = Instantiate(bloqueRuidoPrefab, contenedorContent);
             
-            // 2. 🌟 EL TRUCO POR CÓDIGO: Buscamos su botón "EliminarCapa" y le conectamos la función
-            // Cambia "EliminarCapa" por el nombre exacto que tenga el objeto de tu botón en el Prefab
+            // Buscamos su botón "EliminarCapa" y le conectamos la función
             Transform botonEliminarTransform = nuevoRuido.transform.Find("EliminarCapa"); 
             if (botonEliminarTransform != null)
             {
                 Button botonEliminar = botonEliminarTransform.GetComponent<Button>();
                 
-                // Limpiamos cualquier cable viejo que tenga el prefab para que no falle
                 botonEliminar.onClick.RemoveAllListeners(); 
                 
-                // Le decimos: "Al hacer click, llama a EliminarRuido de este script y pásate a ti mismo"
                 botonEliminar.onClick.AddListener(() => EliminarRuido(nuevoRuido));
             }
 
-            // 3. Reorganizamos los nombres y textos
+            // Reorganizar nombres
             ReorganizarCapas();
         }
     }
