@@ -1096,8 +1096,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrbitLine
   steps: 100000
   pointInterval: 100
-  distanciaEntrePuntos: 1
   bodyId: 2
+  lastBodyPositionsStepCount: 1000
 --- !u!120 &928352323
 LineRenderer:
   serializedVersion: 3
@@ -1124,7 +1124,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: e834f21fe6b28034584bee067c42b13e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1147,9 +1147,7 @@ LineRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Positions:
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 1}
+  m_Positions: []
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -2612,7 +2610,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 846be1a238fe2ee4c98afa5c6e303380, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NBodySimulation
-  timeScale: 6.22
+  timeScale: 2
 --- !u!4 &1699660293
 Transform:
   m_ObjectHideFlags: 0
