@@ -42,6 +42,7 @@ public class ListaBiomas : MonoBehaviour
         for (int i = 0; i < contenedorContent.childCount; i++)
         {
             Transform hijo = contenedorContent.GetChild(i);
+            hijo.gameObject.name = "Bioma " + contador;
 
             Transform textoTransform = hijo.Find("TextBioma");
             if (textoTransform != null)
