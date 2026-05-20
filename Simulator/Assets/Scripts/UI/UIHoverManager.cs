@@ -1,32 +1,38 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System.Collections.Generic;
+using UnityEngine.InputSystem;
+
 
 public class UIHoverManager : MonoBehaviour
 {
+    public GraphicRaycaster raycaster;
+    public EventSystem eventSystem;
+    
+    public bool isHovering = false;
+
     void Start()
     {
-        var graphics = GetComponentsInChildren<Graphic>();
+        raycaster = GetComponent<GraphicRaycaster>();
+        eventSystem = EventSystem.current;
+    }
 
-        foreach (var g in graphics)
+    void Update()
+    {
+        var mouse = Mouse.current;
+        PointerEventData data = new PointerEventData(eventSystem);
+        data.position = mouse.position.ReadValue();
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        raycaster.Raycast(data, results);
+
+        if (results.Count > 0)
         {
-            GameObject obj = g.gameObject;
-
-            var hover = obj.GetComponent<HoverItem>();
-            if (hover == null)
-                hover = obj.AddComponent<HoverItem>();
-
-            hover.onEnter += OnEnter;
-            hover.onExit += OnExit;
+            isHovering = true;
+        } else
+        {
+            isHovering = false;
         }
-    }
-
-    void OnEnter(GameObject go)
-    {
-        Debug.Log("Enter: " + go.name);
-    }
-
-    void OnExit(GameObject go)
-    {
-        Debug.Log("Exit: " + go.name);
     }
 }

@@ -2,12 +2,18 @@ using UnityEngine;
 
 public class Sun : MonoBehaviour, SharedSettings
 {
+    private NBodySimulation simulator;
     public bool autoUpdate = true;
     public SunSettings sunSettings;
     [SerializeField, HideInInspector]
     GameObject sphere;
     [SerializeField, HideInInspector]
     Light pointLight;
+
+    void Start()
+    {
+        simulator = transform.parent.GetComponent<NBodySimulation>();
+    }
 
     private void OnValidate() {
         GenerateSun();
@@ -35,8 +41,8 @@ public class Sun : MonoBehaviour, SharedSettings
 
         sphere.transform.localScale = Vector3.one * sunSettings.sunRadius * 2f;
 
-        pointLight.intensity = sunSettings.lightIntensity;
-        pointLight.range = sunSettings.lightRange;
+        pointLight.intensity = 1f;
+        pointLight.range = 10f;
 
         Material sunMaterial = sunSettings.sunMaterial;
         sunMaterial.SetFloat("_NoiseScale", sunSettings.NoiseScale);
@@ -51,6 +57,25 @@ public class Sun : MonoBehaviour, SharedSettings
         renderer.material = sunMaterial;
     }
 
+    void Update()
+    {
+        float maximumDistance = 0f;
+        foreach (GameObject body in simulator.bodyList)
+        {
+            if (body != this)
+            {
+                float distance = Vector3.Distance(transform.position, body.transform.position);
+                if (distance > maximumDistance)
+                {
+                    maximumDistance = distance;
+                }
+            }
+        }
+        if (Mathf.Abs(pointLight.range - maximumDistance) > 50f)
+        {
+            pointLight.range = maximumDistance + 100f;
+        }
+    }
     public float getRadius()
     {
         return sunSettings.sunRadius;

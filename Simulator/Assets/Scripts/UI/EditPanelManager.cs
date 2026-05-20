@@ -5,7 +5,9 @@ public class EditPanelManager : MonoBehaviour
 {
     [SerializeField] Toggle gizmoButton;
     [SerializeField] SelectedBodyManager selectedBodyManager;
+    [SerializeField] CameraController cameraContoller;
     [SerializeField] GameObject gizmo;
+    public float gizmoOrbitDistance = 10f;
     private GizmoManager gizmoManager;
 
     private bool showGizmo = false;
@@ -47,6 +49,7 @@ public class EditPanelManager : MonoBehaviour
             gizmo.SetActive(false);
             return;
         }
+        cameraContoller.SetOrbitRadius(gizmoOrbitDistance);
         showGizmo = true;
         displayGizmo();
     }

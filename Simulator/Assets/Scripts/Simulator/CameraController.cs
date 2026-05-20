@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class CameraController : MonoBehaviour {
 
     [SerializeField] private NBodySimulation simulator;
+    [SerializeField] private UIHoverManager uiHoverManager;
     public float navigationSpeed = 2.4f;
     public float shiftMultiplier = 2f;
     public float sensitivity = 1.0f;
@@ -75,7 +76,7 @@ public class CameraController : MonoBehaviour {
                 //transform.LookAt(lookAtTransform);
                 return;
             }
-            if (mouse.leftButton.isPressed) {
+            if (mouse.leftButton.isPressed && !uiHoverManager.isHovering) {
                 
                 Vector2 lookInput = mouse.delta.ReadValue();
 
@@ -88,19 +89,21 @@ public class CameraController : MonoBehaviour {
                 transform.rotation = Quaternion.Euler(pitch, yaw, 0);
             }
 
-            orbitRadius -= mouse.scroll.ReadValue().y * sensitivity;
+            if (!uiHoverManager.isHovering) orbitRadius -= mouse.scroll.ReadValue().y * sensitivity;
             orbitRadius = Mathf.Max(orbitRadius, minOrbitRadius);
             transform.position = lookAtTransform.position - transform.forward * orbitRadius;
             return;
         }
 
-        MousePanning(mouse);
-
         if (isPanning)
             return;
 
+        if (uiHoverManager.isHovering) return;  //Cursor sobre interfaz
+
+        MousePanning(mouse);
+
         //Movimiento
-        if (mouse.rightButton.isPressed) {
+        if (mouse.rightButton.isPressed && !uiHoverManager.isHovering) {
             Vector3 move = Vector3.zero;
 
             float speed = navigationSpeed *
@@ -199,6 +202,13 @@ public class CameraController : MonoBehaviour {
         } else {
             isMovingToOrbit = false;
         }
+    }
+
+    public void SetOrbitRadius(float multiplier)
+    {
+        if (!lookAtTransform) return;
+        float objRadius = lookAtTransform.GetComponent<SharedSettings>().getRadius();
+        orbitRadius = objRadius * multiplier;
     }
 
     public void orbitObject(GameObject obj) {

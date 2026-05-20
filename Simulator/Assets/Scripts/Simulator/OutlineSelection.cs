@@ -16,11 +16,14 @@ public class OutlineSelection : MonoBehaviour
     private SelectedBodyManager selectedBodyManager;
     [SerializeField]
     private EditPanelManager editPanelManager;
+    [SerializeField]
+    private UIHoverManager uiHoverManager;
 
     public float doubleClickTime = 0.3f;
     private float lastClickTime = -1f;
     void Update()
     {
+        if (uiHoverManager.isHovering) return;
         if (!isEnabled) return;
         var mouse = Mouse.current;
         if (mouse == null) return;
