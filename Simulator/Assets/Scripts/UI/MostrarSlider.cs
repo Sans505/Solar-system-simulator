@@ -9,4 +9,9 @@ public class MostrarSlider : MonoBehaviour
     {
         textoSlider.text = valor.ToString("F0");
     }
+
+    public void CambiarTextPercentage(float valor)
+    {
+        textoSlider.text = valor.ToString("F0" ) + "%";
+    }
 }
