@@ -4,11 +4,12 @@ using System.Collections.Generic;
 
 public class NBodySimulation : MonoBehaviour
 {
+    [SerializeField] BodyListMenuManager bodyListMenuManager;
+    [SerializeField] SelectedBodyManager selectedBodyManager;
+    [SerializeField] HUDManager hudManager;
 
     private CelestialBody[] bodies;
     public List<GameObject> bodyList;
-
-    private List<BodyInitialData> bodiesInitialData;
 
     public bool isSimulating = false;
     public float timeScale = 1;
@@ -16,26 +17,35 @@ public class NBodySimulation : MonoBehaviour
     void Awake ()
     {
         bodyList = new List<GameObject>();
+
+        List<CelestialBody> celestialBodyList = new List<CelestialBody>();
+
+        int i = 0;
         foreach (Transform t in GetComponentInChildren<Transform>()) {
             bodyList.Add(t.gameObject);
+            CelestialBody celestialBody = t.gameObject.GetComponent<CelestialBody>();
+            celestialBody.id = i;
+            celestialBodyList.Add(celestialBody);
+            i++;
         }
 
-        bodies = FindObjectsOfType<CelestialBody>()
-            .OrderBy(o => o.id)
-            .ToArray();
+        bodyListMenuManager.SetEntriesInfoList(bodyList);
+        bodyListMenuManager.CreateEntries();
+        hudManager.CreateHUDs();
+
+
+        bodies = celestialBodyList.ToArray();
+
         Time.fixedDeltaTime = Universe.physicsTimeStep;
         Time.timeScale = 0;
     }
+
     public void StartSimulation() {
-        bodiesInitialData = new List<BodyInitialData>();
 
-        foreach (GameObject body in bodyList) {
-            CelestialBody celestialBody = body.GetComponent<CelestialBody>();
-            BodyInitialData bodyData = new BodyInitialData(body.name, body.transform.position, body.transform.rotation);
-
-            bodiesInitialData.Add(bodyData);
+        foreach (CelestialBody body in bodies) {
+            body.RegisterInitialTransform();
         }
-
+        selectedBodyManager.changeToSimulationMode();
         isSimulating = true;
         Time.timeScale = timeScale;
     }
@@ -45,27 +55,42 @@ public class NBodySimulation : MonoBehaviour
         isSimulating = false;
 
         bodyList = new List<GameObject>();
+        List<CelestialBody> celestialBodyList = new List<CelestialBody>();
+
+        int i = 0;
         foreach(Transform t in GetComponentInChildren<Transform>()) {
-            BodyInitialData bodyData = bodiesInitialData.Find(x => x.name == t.gameObject.name);
-            if (bodyData != null) {
-                t.position = bodyData.initialPosition;
-                t.rotation = bodyData.initialRotation;
-                t.gameObject.SetActive(true);
-                t.gameObject.GetComponent<CelestialBody>().Reset();
-                bodyList.Add(t.gameObject);
-            } else {
+            
+            CelestialBody body = t.gameObject.GetComponent<CelestialBody>();
+            if (body.destroyAfterSimulation) {
                 Destroy(t.gameObject);
+            } else {
+                body.Reset();
+                body.id = i;
+                bodyList.Add(t.gameObject);
+                celestialBodyList.Add(body);
+
+                i++;
             }
         }
-
         Physics.SyncTransforms();
+
+        bodies = celestialBodyList.ToArray();
+
+        bodyListMenuManager.SetEntriesInfoList(bodyList);
+        bodyListMenuManager.CreateEntries();
+        hudManager.CreateHUDs();
+        selectedBodyManager.changeToEditMode();
     }
 
     public void PauseSimulation() {
-        Time.timeScale = 0;
+        if (isSimulating) {
+            Time.timeScale = 0;
+        }
     }
     public void ResumeSimulation() {
-        Time.timeScale = timeScale;
+        if (isSimulating) {
+            Time.timeScale = timeScale;
+        }
     }
 
     public void ChangeTimeScale(float newTimeScale) {
@@ -203,18 +228,6 @@ public class NBodySimulation : MonoBehaviour
             position = body.transform.position;
             velocity = body.velocity;
             mass = body.mass;
-        }
-    }
-
-    public class BodyInitialData {
-        public string name;
-        public Vector3 initialPosition;
-        public Quaternion initialRotation;
-
-        public BodyInitialData(string n, Vector3 pos, Quaternion rot) {
-            name = n;
-            initialPosition = pos;
-            initialRotation = rot;
         }
     }
 }

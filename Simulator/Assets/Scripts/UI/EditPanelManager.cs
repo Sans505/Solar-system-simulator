@@ -16,7 +16,6 @@ public class EditPanelManager : MonoBehaviour
 
     void OnEnable()
     {
-        Debug.Log("asd");
         if (selectedBodyManager.selectedBody) {
             gizmoButton.gameObject.SetActive(true);
         } else {
@@ -25,8 +24,13 @@ public class EditPanelManager : MonoBehaviour
     }
 
     void Update() {
-
-        if (showGizmo) UpdateGizmo();
+        if (selectedBodyManager.selectedBodyExists) {
+            if (selectedBodyManager.selectedBody) {
+                if (showGizmo) UpdateGizmo();
+            } else {
+                gizmo.SetActive(false);
+            }
+        }
     }
 
     private void UpdateGizmo()
@@ -69,8 +73,5 @@ public class EditPanelManager : MonoBehaviour
             gizmoButton.isOn = true;
         }
     }
-
-
-
     
 }

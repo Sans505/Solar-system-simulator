@@ -5,8 +5,6 @@ using System.Collections.Generic;
 
 public class SelectedBodyManager : MonoBehaviour
 {
-    public GameObject selectedBody;
-    public CelestialBody selectedCelestialBody;
 
     [SerializeField]
     private NBodySimulation simulator;
@@ -29,6 +27,10 @@ public class SelectedBodyManager : MonoBehaviour
     [SerializeField]
     private EditPanelManager editPanelManager;
 
+    public GameObject selectedBody;
+    public CelestialBody selectedCelestialBody;
+    public bool selectedBodyExists = false;
+
     private bool showOrbit = false;
     private bool showVelocity = false;
     private bool showForces = false;
@@ -37,20 +39,21 @@ public class SelectedBodyManager : MonoBehaviour
     private GameObject[] forceArrows;
     private bool isDoubleSelected;
 
-    void Start() {
-
-        bodyListManager.SetEntriesInfoList(simulator.bodyList);
-        bodyListManager.CreateEntries();
-    }
-
-
-
     void Update() {
-        if (selectedBody) {
+        if (selectedBodyExists) {
+            if (selectedBody) {
 
-            if (showVelocity) UpdateVelocityVector();
-            if (showForces) UpdateForcesVector();
+                if (showVelocity) UpdateVelocityVector();
+                if (showForces) UpdateForcesVector();
+
+                Outline outline = selectedBody.GetComponent<Outline>();
+                if (outline != null) outline.enabled = true;
             
+            } else {
+                selectedBodyExists = false;
+                NotificationManager.instance.ShowNotification("Error: Se ha perdido la referencia al cuerpo seleccionado", NotificationType.Error);
+                Deselect();
+            }
         }
     }
 
@@ -83,7 +86,7 @@ public class SelectedBodyManager : MonoBehaviour
     }
 
     public void SelectBody(GameObject newBody, bool isDoubleSelected) {
-        Deselect();
+        if (selectedBody) Deselect();
 
         selectedBody = newBody;
         selectedCelestialBody = selectedBody.GetComponent<CelestialBody>();
@@ -99,8 +102,21 @@ public class SelectedBodyManager : MonoBehaviour
             cameraController.orbitObject(selectedBody);
         }
 
+        Outline outline = selectedBody.GetComponent<Outline>();
+
+        if (outline != null)
+        {
+            outline.enabled = true;
+        }
+        else
+        {
+            outline = selectedBody.AddComponent<Outline>();
+            outline.enabled = true;
+        }
+
         bodyListManager.UpdateSelectedEntry(selectedBody.name);
         selectionModePanel.SetActive(true);
+        selectedBodyExists = true;
     }
 
     public void SelectBody(string bodyName, bool isDoubleSelected) {
@@ -108,7 +124,7 @@ public class SelectedBodyManager : MonoBehaviour
         if (selectedBody) {
             SelectBody(selectedBody, isDoubleSelected);
         } else {
-            Debug.Log("Error: Cuerpo no encontrado");
+            NotificationManager.instance.ShowNotification("Error: Cuerpo no encontrado", NotificationType.Error);
         }
     }
 
@@ -220,9 +236,9 @@ public class SelectedBodyManager : MonoBehaviour
     public void changeToEditMode() {
         editPanel.SetActive(true);
         startEditPanel.SetActive(false);
-        simulator.PauseSimulation();
 
-        if (NotificationManager.instance) {
+        if (simulator.isSimulating) {
+            simulator.PauseSimulation();
             NotificationManager.instance.ShowNotification("Simulación pausada", NotificationType.Info);
         }
     }
@@ -232,9 +248,8 @@ public class SelectedBodyManager : MonoBehaviour
         editPanel.SetActive(false);
         startEditPanel.SetActive(true);
 
-        simulator.ResumeSimulation();
-
-        if (NotificationManager.instance) {
+        if (simulator.isSimulating) {
+            simulator.ResumeSimulation();
             NotificationManager.instance.ShowNotification("Simulación reanudada", NotificationType.Info);
         }
     }
@@ -249,6 +264,8 @@ public class SelectedBodyManager : MonoBehaviour
     }
 
     public void Deselect() {
+        Outline outline = selectedBody.GetComponent<Outline>();
+        if (outline != null) outline.enabled = false;
         selectedBody = null;
         isDoubleSelected = false;
         orbitLine.Clear();
@@ -261,6 +278,7 @@ public class SelectedBodyManager : MonoBehaviour
         }
         selectionModePanel.SetActive(false);
         gizmos.SetActive(false);
+
     }
     
 }
