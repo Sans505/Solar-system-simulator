@@ -1,8 +1,12 @@
+using System.Collections;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI; 
 public class ListaRuidos : MonoBehaviour
 {
+    public delegate void RuidosCambiadosHandler();
+    public event RuidosCambiadosHandler OnRuidosCambiados;
+
     // Contenedor del Scroll View
     public Transform contenedorContent;
 
@@ -29,6 +33,7 @@ public class ListaRuidos : MonoBehaviour
 
             // Reorganizar nombres
             ReorganizarCapas();
+            OnRuidosCambiados?.Invoke();
         }
     }
 
@@ -39,7 +44,14 @@ public class ListaRuidos : MonoBehaviour
             // Reorganizamos ignorando esta capa antes de destruirla
             ReorganizarCapas(ruidoEliminar);
             Destroy(ruidoEliminar);
+            StartCoroutine(NotificarRuidosCambiadosEnSiguienteFrame());
         }
+    }
+
+    private IEnumerator NotificarRuidosCambiadosEnSiguienteFrame()
+    {
+        yield return null;
+        OnRuidosCambiados?.Invoke();
     }
 
     private void ReorganizarCapas(GameObject objetoAIgnorar = null)
