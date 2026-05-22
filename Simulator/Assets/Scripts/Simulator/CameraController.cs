@@ -95,12 +95,12 @@ public class CameraController : MonoBehaviour {
             return;
         }
 
-        if (isPanning)
-            return;
-
         if (uiHoverManager.isHovering) return;  //Cursor sobre interfaz
 
         MousePanning(mouse);
+
+        if (isPanning)
+            return;
 
         //Movimiento
         if (mouse.rightButton.isPressed && !uiHoverManager.isHovering) {
