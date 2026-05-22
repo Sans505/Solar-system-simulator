@@ -7,6 +7,7 @@ public class OrbitLine : MonoBehaviour
     public int pointInterval = 100;
 
     public int bodyId;
+    [SerializeField]
     private NBodySimulation simulator;
     private NBodySimulation.VirtualBody[] lastStepBodies;
     public int lastBodyPositionsStepCount = 100;
@@ -16,7 +17,6 @@ public class OrbitLine : MonoBehaviour
 
     void Awake()
     {
-        simulator = GetComponentInParent<NBodySimulation>();
         lr = GetComponent<LineRenderer>();
 
         //Material mat = new Material(Shader.Find("Sprites/Default"));

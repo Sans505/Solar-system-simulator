@@ -1,7 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
 public class CameraController : MonoBehaviour {
+
+    [SerializeField] private NBodySimulation simulator;
+    [SerializeField] private UIHoverManager uiHoverManager;
     public float navigationSpeed = 2.4f;
     public float shiftMultiplier = 2f;
     public float sensitivity = 1.0f;
@@ -11,6 +15,7 @@ public class CameraController : MonoBehaviour {
     public float orbitRadius = 5f;
     public float lerpDuration = 6f;
     public float lerpIntensity = 3f;
+    public float topViewPadding = 1.2f;
 
     public Transform lookAtTransform;
 
@@ -32,7 +37,12 @@ public class CameraController : MonoBehaviour {
 
     private float time;
     private bool isMovingToOrbit;
+    private bool isMovingToPosition;
+
     private Vector3 originPoint;
+    private Vector3 destinationPoint;
+    private Quaternion originRotation;
+    private Quaternion destinationRotation;
 
     private void Awake () {
         cam = GetComponent<Camera>();
@@ -44,6 +54,11 @@ public class CameraController : MonoBehaviour {
 
         if (isMovingToOrbit) {
             moveToOrbitObject();
+            return;
+        }
+
+        if (isMovingToPosition) {
+            moveToPosition();
             return;
         }
 
@@ -61,7 +76,7 @@ public class CameraController : MonoBehaviour {
                 //transform.LookAt(lookAtTransform);
                 return;
             }
-            if (mouse.leftButton.isPressed) {
+            if (mouse.leftButton.isPressed && !uiHoverManager.isHovering) {
                 
                 Vector2 lookInput = mouse.delta.ReadValue();
 
@@ -74,19 +89,21 @@ public class CameraController : MonoBehaviour {
                 transform.rotation = Quaternion.Euler(pitch, yaw, 0);
             }
 
-            orbitRadius -= mouse.scroll.ReadValue().y * sensitivity;
+            if (!uiHoverManager.isHovering) orbitRadius -= mouse.scroll.ReadValue().y * sensitivity;
             orbitRadius = Mathf.Max(orbitRadius, minOrbitRadius);
             transform.position = lookAtTransform.position - transform.forward * orbitRadius;
             return;
         }
 
-        MousePanning(mouse);
-
         if (isPanning)
             return;
 
+        if (uiHoverManager.isHovering) return;  //Cursor sobre interfaz
+
+        MousePanning(mouse);
+
         //Movimiento
-        if (mouse.rightButton.isPressed) {
+        if (mouse.rightButton.isPressed && !uiHoverManager.isHovering) {
             Vector3 move = Vector3.zero;
 
             float speed = navigationSpeed *
@@ -180,11 +197,18 @@ public class CameraController : MonoBehaviour {
 
             t = Mathf.SmoothStep(0f, 1f, Mathf.Pow(t, lerpIntensity));
 
-            Vector3 destinationPoint = lookAtTransform.position - transform.forward * orbitRadius;
+            destinationPoint = lookAtTransform.position - transform.forward * orbitRadius;
             transform.position = Vector3.Lerp(originPoint, destinationPoint, t);
         } else {
             isMovingToOrbit = false;
         }
+    }
+
+    public void SetOrbitRadius(float multiplier)
+    {
+        if (!lookAtTransform) return;
+        float objRadius = lookAtTransform.GetComponent<SharedSettings>().getRadius();
+        orbitRadius = objRadius * multiplier;
     }
 
     public void orbitObject(GameObject obj) {
@@ -197,7 +221,66 @@ public class CameraController : MonoBehaviour {
         yaw = transform.eulerAngles.y;
         pitch = transform.eulerAngles.x;
 
+        isMovingToPosition = false;
         isMovingToOrbit = true;
+        time = 0f;
+        originPoint = transform.position;
+    }
+
+    private void moveToPosition() {
+
+        if (time < lerpDuration)
+        {
+            time += Time.unscaledDeltaTime;
+            float t = time / lerpDuration;
+
+            t = Mathf.SmoothStep(0f, 1f, Mathf.Pow(t, lerpIntensity));
+
+            transform.position = Vector3.Lerp(originPoint, destinationPoint, t);
+            transform.rotation = Quaternion.Slerp(originRotation, destinationRotation, t);
+        } else {
+            isMovingToPosition = false;
+        }
+    }
+
+
+
+    public void moveToTopView() {
+
+        lookAtTransform = null;
+
+        yaw = transform.eulerAngles.y;
+        pitch = transform.eulerAngles.x;
+
+        List<GameObject> bodyList = simulator.bodyList;
+
+        if (bodyList.Count == 0) return;
+
+        Bounds bounds = new Bounds(bodyList[0].transform.position, Vector3.zero);
+
+        // Expandir bounds para incluir todos los objetos
+        foreach (var b in bodyList)
+        {
+            bounds.Encapsulate(b.transform.position);
+        }
+
+        Vector3 center = bounds.center;
+        float size = Mathf.Max(bounds.size.x, bounds.size.z);
+
+        // Asegurar que mira hacia abajo
+        originRotation = transform.rotation;
+        destinationRotation = Quaternion.Euler(90f, 0f, 0f);
+
+        // Calcular altura necesaria según FOV
+        float fov = cam.fieldOfView;
+        float distance = size / (2f * Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad));
+
+        distance *= topViewPadding;
+
+        destinationPoint = center + Vector3.up * distance;
+
+        isMovingToOrbit = false;
+        isMovingToPosition = true;
         time = 0f;
         originPoint = transform.position;
     }

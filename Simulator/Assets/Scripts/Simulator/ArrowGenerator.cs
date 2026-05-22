@@ -15,6 +15,8 @@ public class ArrowGenerator : MonoBehaviour
     private const float defaultTipLength = 1;
     [SerializeField]
     private const float defaultTipWidth = 1;
+    [SerializeField]
+    private const float colliderScale = 1.2f;
 
     public float stemLength = defaultStemLength;
     public float stemWidth = defaultStemWidth;
@@ -166,8 +168,8 @@ public class ArrowGenerator : MonoBehaviour
             mesh.triangles = triangles.ToArray();
             mesh.RecalculateNormals();
 
-            collider.height = stemLength + tipLength;      
-            collider.radius = stemWidth / 2;
+            collider.height = (stemLength + tipLength) * colliderScale;      
+            collider.radius = (stemWidth / 2) * colliderScale;
             collider.center = Vector3.zero + Vector3.up * ((stemLength + tipLength) / 2); 
             collider.direction = 1; 
         }

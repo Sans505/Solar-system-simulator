@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Selectable
   - Gizmo
+  - DestroyWhenStopSimulation
   layers:
   - Default
   - TransparentFX

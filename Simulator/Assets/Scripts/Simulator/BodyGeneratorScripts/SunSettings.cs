@@ -11,6 +11,4 @@ public class SunSettings : ScriptableObject {
     public float TwirlStrength = 22;
     public float DistorsionScale = 45;
     public Vector2 PanSpeed = new Vector2(0.01f, 0.01f);
-    public float lightIntensity;
-    public float lightRange;
 }

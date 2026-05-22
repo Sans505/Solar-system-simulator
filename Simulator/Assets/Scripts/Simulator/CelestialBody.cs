@@ -6,10 +6,13 @@ public class CelestialBody : MonoBehaviour
 {
     public int id;
     public float mass { get; private set; }
+    public Vector3 initialPosition;
+    public Quaternion initialRotation;
     public Vector3 initialVelocity;
-    public Vector3 initialRotationVelocity;
+    public Vector3 initialAngularVelocity;
     public Vector3 velocity { get; private set; }
     public Vector3 acceleration { get; private set; }
+    public bool destroyAfterSimulation = false;
     Rigidbody rb;
     
     void Awake()
@@ -19,8 +22,22 @@ public class CelestialBody : MonoBehaviour
         rb = GetComponent<Rigidbody> ();
         mass = rb.mass;
         rb.useGravity = false;
-        rb.angularVelocity = initialRotationVelocity;
+        rb.angularVelocity = initialAngularVelocity;
+        initialPosition = transform.position;
+        initialRotation = transform.rotation;
         rb.angularDamping = 0f;
+    }
+
+    public void Reset() {
+        velocity = initialVelocity;
+        rb.angularVelocity = initialAngularVelocity;
+        transform.position = initialPosition;
+        transform.rotation = initialRotation;
+    }
+
+    public void RegisterInitialTransform() {
+        initialPosition = transform.position;
+        initialRotation = transform.rotation;
     }
 
     //public void UpdateVelocity(CelestialBody[] allBodies, float timeStep)

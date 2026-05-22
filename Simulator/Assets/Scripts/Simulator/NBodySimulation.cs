@@ -1,26 +1,100 @@
 using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
 
 public class NBodySimulation : MonoBehaviour
 {
-    CelestialBody[] bodies;
+    [SerializeField] BodyListMenuManager bodyListMenuManager;
+    [SerializeField] SelectedBodyManager selectedBodyManager;
+    [SerializeField] HUDManager hudManager;
 
+    private CelestialBody[] bodies;
+    public List<GameObject> bodyList;
+
+    public bool isSimulating = false;
     public float timeScale = 1;
 
     void Awake ()
     {
-        bodies = FindObjectsOfType<CelestialBody>()
-            .OrderBy(o => o.id)
-            .ToArray();
+        bodyList = new List<GameObject>();
+
+        List<CelestialBody> celestialBodyList = new List<CelestialBody>();
+
+        int i = 0;
+        foreach (Transform t in GetComponentInChildren<Transform>()) {
+            bodyList.Add(t.gameObject);
+            CelestialBody celestialBody = t.gameObject.GetComponent<CelestialBody>();
+            celestialBody.id = i;
+            celestialBodyList.Add(celestialBody);
+            i++;
+        }
+
+        bodyListMenuManager.SetEntriesInfoList(bodyList);
+        bodyListMenuManager.CreateEntries();
+        hudManager.CreateHUDs();
+
+
+        bodies = celestialBodyList.ToArray();
+
         Time.fixedDeltaTime = Universe.physicsTimeStep;
+        Time.timeScale = 0;
+    }
+
+    public void StartSimulation() {
+
+        foreach (CelestialBody body in bodies) {
+            body.RegisterInitialTransform();
+        }
+        selectedBodyManager.changeToSimulationMode();
+        isSimulating = true;
         Time.timeScale = timeScale;
     }
 
-    [ContextMenu("Cambiar tiempo")]
-    private void changrTimeButton() {
-        changeTimeScale(timeScale);
+    public void StopSimulation() {
+        Time.timeScale = 0;
+        isSimulating = false;
+
+        bodyList = new List<GameObject>();
+        List<CelestialBody> celestialBodyList = new List<CelestialBody>();
+
+        int i = 0;
+        foreach(Transform t in GetComponentInChildren<Transform>()) {
+            
+            CelestialBody body = t.gameObject.GetComponent<CelestialBody>();
+            if (body.destroyAfterSimulation) {
+                Destroy(t.gameObject);
+            } else {
+                body.Reset();
+                body.id = i;
+                bodyList.Add(t.gameObject);
+                celestialBodyList.Add(body);
+
+                i++;
+            }
+        }
+        Physics.SyncTransforms();
+
+        bodies = celestialBodyList.ToArray();
+
+        bodyListMenuManager.SetEntriesInfoList(bodyList);
+        bodyListMenuManager.CreateEntries();
+        hudManager.CreateHUDs();
+        selectedBodyManager.changeToEditMode();
     }
-    public void changeTimeScale(float newTimeScale) {
+
+    public void PauseSimulation() {
+        if (isSimulating) {
+            Time.timeScale = 0;
+        }
+    }
+    public void ResumeSimulation() {
+        if (isSimulating) {
+            Time.timeScale = timeScale;
+        }
+    }
+
+    public void ChangeTimeScale(float newTimeScale) {
+        timeScale = newTimeScale;
         Time.timeScale = newTimeScale;
     }
 

@@ -1,11 +1,10 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Linq;
+using System.Collections.Generic;
 
 public class SelectedBodyManager : MonoBehaviour
 {
-    public GameObject selectedBody;
-    public CelestialBody selectedCelestialBody;
-    private SelectionMode mode;
 
     [SerializeField]
     private NBodySimulation simulator;
@@ -17,28 +16,43 @@ public class SelectedBodyManager : MonoBehaviour
     private GameObject gizmos;
     [SerializeField]
     private CameraController cameraController;
+    [SerializeField]
+    private GameObject selectionModePanel;
+    [SerializeField]
+    private GameObject editPanel;
+    [SerializeField]
+    private GameObject startEditPanel;
+    [SerializeField]
+    private BodyListMenuManager bodyListManager;
+    [SerializeField]
+    private EditPanelManager editPanelManager;
+
+    public GameObject selectedBody;
+    public CelestialBody selectedCelestialBody;
+    public bool selectedBodyExists = false;
+
+    private bool showOrbit = false;
+    private bool showVelocity = false;
+    private bool showForces = false;
 
     private GizmoManager gizmoManager;
     private GameObject[] forceArrows;
     private bool isDoubleSelected;
 
-    void Awake() {
-        gizmoManager = gizmos.GetComponent<GizmoManager>();
-    }
-
     void Update() {
-        if (selectedBody) {
-            switch(mode)
-            {
-                case SelectionMode.VelocityVector:
-                    UpdateVelocityVector();
-                    break;
-                case SelectionMode.Gizmo:
-                    UpdateGizmo();
-                    break;
-                case SelectionMode.ForcesVector:
-                    UpdateForcesVector();
-                    break;
+        if (selectedBodyExists) {
+            if (selectedBody) {
+
+                if (showVelocity) UpdateVelocityVector();
+                if (showForces) UpdateForcesVector();
+
+                Outline outline = selectedBody.GetComponent<Outline>();
+                if (outline != null) outline.enabled = true;
+            
+            } else {
+                selectedBodyExists = false;
+                NotificationManager.instance.ShowNotification("Error: Se ha perdido la referencia al cuerpo seleccionado", NotificationType.Error);
+                Deselect();
             }
         }
     }
@@ -71,46 +85,102 @@ public class SelectedBodyManager : MonoBehaviour
         }
     }
 
-    private void UpdateGizmo()
-    {
-        Physics.SyncTransforms();
-        gizmos.transform.position = selectedBody.transform.position;
-    }
-
     public void SelectBody(GameObject newBody, bool isDoubleSelected) {
-        Deselect();
+        if (selectedBody) Deselect();
 
         selectedBody = newBody;
         selectedCelestialBody = selectedBody.GetComponent<CelestialBody>();
-        orbitLine.bodyId = selectedCelestialBody.id;
 
-        //orbitLine.DrawOrbit();
-        //showVelocityArrow();
-        //showForceVectors();
-        showGizmo();
-        mode = SelectionMode.Gizmo;
+        editPanelManager.displayGizmo();
+        if (showVelocity) displayVelocityVector();
+        if (showForces) displayForceVectors();
+        if (showOrbit) displayOrbit();
 
 
         this.isDoubleSelected = isDoubleSelected;
         if (isDoubleSelected) {
             cameraController.orbitObject(selectedBody);
         }
+
+        Outline outline = selectedBody.GetComponent<Outline>();
+
+        if (outline != null)
+        {
+            outline.enabled = true;
+        }
+        else
+        {
+            outline = selectedBody.AddComponent<Outline>();
+            outline.enabled = true;
+        }
+
+        bodyListManager.UpdateSelectedEntry(selectedBody.name);
+        selectionModePanel.SetActive(true);
+        selectedBodyExists = true;
     }
 
-    private void showVelocityArrow() {
+    public void SelectBody(string bodyName, bool isDoubleSelected) {
+        GameObject selectedBody = simulator.bodyList.Find(x => x.name == bodyName);
+        if (selectedBody) {
+            SelectBody(selectedBody, isDoubleSelected);
+        } else {
+            NotificationManager.instance.ShowNotification("Error: Cuerpo no encontrado", NotificationType.Error);
+        }
+    }
 
+    public void toggleOrbit() {
+        if (showOrbit) {
+            showOrbit = false;
+            orbitLine.Clear();
+            return;
+        }
+        displayOrbit();
+        showOrbit = true;
+    }
+
+    public void displayOrbit() {
+        orbitLine.bodyId = selectedCelestialBody.id;
+        orbitLine.DrawOrbit();
+    }
+
+    public void toggleVelocityArrow() {
+
+        if (showVelocity) {
+            showVelocity = false;
+            velocityArrow.SetActive(false);
+            return;
+        }
+
+        displayVelocityVector();
+        showVelocity = true;
+    }
+    public void displayVelocityVector() {
         float objRadius = selectedBody.GetComponent<SharedSettings>().getRadius();
 
         velocityArrow.transform.localScale = Vector3.one * objRadius * 0.6f;
         velocityArrow.SetActive(true);
     }
 
-    private void showForceVectors() {
+    public void toggleForceVectors() {
 
+        if (showForces) {
+            showForces = false;
+            if (forceArrows != null) {
+                foreach (var arrow in forceArrows)
+                {
+                    Destroy(arrow);
+                }
+            }
+            return;
+        }
+        displayForceVectors();
+        showForces = true;
+    }
+
+    private void displayForceVectors() {
         Vector3[] forces = simulator.getForceVectors(selectedCelestialBody);
         Color[] colors = GenerateRandomColors(forces.Length);
         forceArrows = new GameObject[forces.Length];
-        Debug.Log("Entro");
 
         for (int i = 0; i < forces.Length; i++) {
 
@@ -122,7 +192,6 @@ public class SelectedBodyManager : MonoBehaviour
             arrow.transform.position = selectedBody.transform.position;
             arrow.transform.up = forces[i].normalized;
 
-            Debug.Log("aaaa " + i);
             forceArrows[i] = arrow;
         }
     }
@@ -138,22 +207,6 @@ public class SelectedBodyManager : MonoBehaviour
         }
 
         return colors;
-    }
-
-    private void showGizmo()
-    {
-        Physics.SyncTransforms();
-        gizmos.SetActive(true);
-        gizmos.transform.position = selectedBody.transform.position;
-
-        float objRadius = selectedBody.GetComponent<SharedSettings>().getRadius();
-
-        gizmoManager.scale = objRadius;
-        gizmoManager.Generate();
-    }
-
-    public void dragObjectWithGizmo(ArrowGenerator arrow) {
-        gizmoManager.dragObject(arrow, selectedBody);
     }
 
     float[] Normalizar(float[] valores)
@@ -180,7 +233,39 @@ public class SelectedBodyManager : MonoBehaviour
         return resultado;
     }
 
+    public void changeToEditMode() {
+        editPanel.SetActive(true);
+        startEditPanel.SetActive(false);
+
+        if (simulator.isSimulating) {
+            simulator.PauseSimulation();
+            NotificationManager.instance.ShowNotification("Simulación pausada", NotificationType.Info);
+        }
+    }
+
+    public void changeToSimulationMode() {
+        editPanelManager.deselectGizmoButton();
+        editPanel.SetActive(false);
+        startEditPanel.SetActive(true);
+
+        if (simulator.isSimulating) {
+            simulator.ResumeSimulation();
+            NotificationManager.instance.ShowNotification("Simulación reanudada", NotificationType.Info);
+        }
+    }
+//
+    public void refreshOrbit() {
+        if (showOrbit) {
+            displayOrbit();
+        }
+    }
+    public void ClearOrbit() {
+        orbitLine.Clear();
+    }
+
     public void Deselect() {
+        Outline outline = selectedBody.GetComponent<Outline>();
+        if (outline != null) outline.enabled = false;
         selectedBody = null;
         isDoubleSelected = false;
         orbitLine.Clear();
@@ -191,14 +276,9 @@ public class SelectedBodyManager : MonoBehaviour
                 Destroy(arrow);
             }
         }
-    }
+        selectionModePanel.SetActive(false);
+        gizmos.SetActive(false);
 
-    enum SelectionMode
-    {
-        Orbit,
-        VelocityVector,
-        ForcesVector,
-        Gizmo
     }
     
 }

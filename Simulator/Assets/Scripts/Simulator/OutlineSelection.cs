@@ -8,17 +8,23 @@ public class OutlineSelection : MonoBehaviour
 {
     private Transform highlight;
     private Transform selection;
+    private Transform lastClickedObject = null;
     private RaycastHit raycastHit;
-    private bool enabled = true;
+    private bool isEnabled = true;
 
     [SerializeField]
     private SelectedBodyManager selectedBodyManager;
+    [SerializeField]
+    private EditPanelManager editPanelManager;
+    [SerializeField]
+    private UIHoverManager uiHoverManager;
 
     public float doubleClickTime = 0.3f;
-    private float lastClickTime;
+    private float lastClickTime = -1f;
     void Update()
     {
-        if (!enabled) return;
+        if (uiHoverManager.isHovering) return;
+        if (!isEnabled) return;
         var mouse = Mouse.current;
         if (mouse == null) return;
 
@@ -73,32 +79,50 @@ public class OutlineSelection : MonoBehaviour
                 highlight = null;
             }
         }
+        
 
         if (mouse.leftButton.wasPressedThisFrame) {
-            if (highlight)
+
+            if (raycastHit.transform)
             {              
                 // Gizmo
-                if (highlight.CompareTag("Gizmo")) {
+                if (raycastHit.transform.CompareTag("Gizmo")) {
                     ArrowGenerator arrow = highlight.GetComponent<ArrowGenerator>();
-                    Debug.Log("Comenzar movimiento");
-                    selectedBodyManager.dragObjectWithGizmo(arrow);
+                    //Debug.Log("Comenzar movimiento");
+                    editPanelManager.dragObjectWithGizmo(arrow);
                 }
                 // Selection
                 else
                 {
-
                     bool doubleSelected = false;
-                    if (Time.unscaledTime - lastClickTime <= doubleClickTime) {
+
+                    if (selection == lastClickedObject &&
+                        Time.unscaledTime - lastClickTime <= doubleClickTime)
+                    {
                         doubleSelected = true;
+                        lastClickTime = -1f;
+                        lastClickedObject = null;
                     }
-                    lastClickTime = Time.unscaledTime;
-                    //Debug.Log(lastClickTime);
+                    else
+                    {
+                        lastClickTime = Time.unscaledTime;
+                        lastClickedObject = selection;
+                    }
+
                     if (selection != null)
                     {
                         selection.GetComponent<Outline>().enabled = false;
                     }
 
                     selection = raycastHit.transform;
+                    //Ray clickRay = Camera.main.ScreenPointToRay(mouse.position.ReadValue());
+                    //RaycastHit clickHit;
+//
+                    //if (Physics.Raycast(clickRay, out clickHit))
+                    //{
+                    //    selection = clickHit.transform;
+                    //}
+
                     selection.GetComponent<Outline>().enabled = true;
                     highlight = null;
 
@@ -120,9 +144,9 @@ public class OutlineSelection : MonoBehaviour
     }
 
     public void Enable() {
-        enabled = true;
+        isEnabled = true;
     }
     public void Disable() {
-        enabled = false;
+        isEnabled = false;
     }
 }
