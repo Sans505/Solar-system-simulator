@@ -6,14 +6,16 @@ using UnityEngine.EventSystems;
 public class BotonPausa : MonoBehaviour
 {
     [SerializeField] NBodySimulation simulator;
+    [SerializeField] private Sprite pauseSprite;
+    [SerializeField] private Sprite resumeSprite;
     private bool estaPausado = false;
     private Button miBoton;
-    private TextMeshProUGUI textoBoton;
+    private Image image;
 
     void Awake()
     {
         miBoton = GetComponent<Button>();
-        textoBoton = GetComponentInChildren<TextMeshProUGUI>();
+        image = miBoton.targetGraphic as Image;
     }
 
     public void AlternarPausa()
@@ -23,12 +25,12 @@ public class BotonPausa : MonoBehaviour
         if (estaPausado)
         {
             simulator.PauseSimulation();
-            if (textoBoton != null) textoBoton.text = "REANUDAR";
+            if (image != null) image.sprite = resumeSprite;
         }
         else
         {
             simulator.ResumeSimulation();
-            if (textoBoton != null) textoBoton.text = "PAUSA";
+            if (image != null) image.sprite = pauseSprite;
         }
 
 
@@ -41,7 +43,7 @@ public class BotonPausa : MonoBehaviour
 
     public void Activate() {
         estaPausado = false;
-        if (textoBoton != null) textoBoton.text = "PAUSA";
+        if (image != null) image.sprite = pauseSprite;
         gameObject.SetActive(true);
     }
 

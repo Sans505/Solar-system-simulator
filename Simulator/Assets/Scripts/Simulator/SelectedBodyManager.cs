@@ -28,6 +28,8 @@ public class SelectedBodyManager : MonoBehaviour
     private BodyListMenuManager bodyListManager;
     [SerializeField]
     private GizmoPanelManager gizmoPanelManager;
+    [SerializeField]
+    private BotonPausa pauseButtonManager;
 
     public GameObject selectedBody;
     public CelestialBody selectedCelestialBody;
@@ -241,6 +243,7 @@ public class SelectedBodyManager : MonoBehaviour
         startEditPanel.SetActive(false);
 
         if (simulator.isSimulating) {
+            pauseButtonManager.Deactivate();
             simulator.PauseSimulation();
             NotificationManager.instance.ShowNotification("Simulación pausada", NotificationType.Info);
         }
@@ -253,6 +256,7 @@ public class SelectedBodyManager : MonoBehaviour
         editPanel.SetActive(false);
 
         if (simulator.isSimulating) {
+            pauseButtonManager.Activate();
             simulator.ResumeSimulation();
             NotificationManager.instance.ShowNotification("Simulación reanudada", NotificationType.Info);
         }
