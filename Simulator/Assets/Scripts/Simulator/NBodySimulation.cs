@@ -7,11 +7,13 @@ public class NBodySimulation : MonoBehaviour
     [SerializeField] BodyListMenuManager bodyListMenuManager;
     [SerializeField] SelectedBodyManager selectedBodyManager;
     [SerializeField] HUDManager hudManager;
+    [SerializeField] BotonPausa pauseButton;
 
     private CelestialBody[] bodies;
     public List<GameObject> bodyList;
 
     public bool isSimulating = false;
+    public bool isPaused = false;
     public float timeScale = 1;
 
     void Awake ()
@@ -46,6 +48,7 @@ public class NBodySimulation : MonoBehaviour
             body.RegisterInitialTransform();
         }
         selectedBodyManager.changeToSimulationMode();
+        pauseButton.Activate();
         isSimulating = true;
         Time.timeScale = timeScale;
     }
@@ -80,14 +83,17 @@ public class NBodySimulation : MonoBehaviour
         bodyListMenuManager.CreateEntries();
         hudManager.CreateHUDs();
         selectedBodyManager.changeToEditMode();
+        pauseButton.Deactivate();
     }
 
     public void PauseSimulation() {
+        isPaused = true;
         if (isSimulating) {
             Time.timeScale = 0;
         }
     }
     public void ResumeSimulation() {
+        isPaused = false;
         if (isSimulating) {
             Time.timeScale = timeScale;
         }
@@ -95,7 +101,9 @@ public class NBodySimulation : MonoBehaviour
 
     public void ChangeTimeScale(float newTimeScale) {
         timeScale = newTimeScale;
-        Time.timeScale = newTimeScale;
+        if (isSimulating && !isPaused) {
+            Time.timeScale = newTimeScale;
+        }
     }
 
     void FixedUpdate()

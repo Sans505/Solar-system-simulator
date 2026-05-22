@@ -23,9 +23,11 @@ public class SelectedBodyManager : MonoBehaviour
     [SerializeField]
     private GameObject startEditPanel;
     [SerializeField]
+    private GameObject gizmoPanel;
+    [SerializeField]
     private BodyListMenuManager bodyListManager;
     [SerializeField]
-    private EditPanelManager editPanelManager;
+    private GizmoPanelManager gizmoPanelManager;
 
     public GameObject selectedBody;
     public CelestialBody selectedCelestialBody;
@@ -91,7 +93,7 @@ public class SelectedBodyManager : MonoBehaviour
         selectedBody = newBody;
         selectedCelestialBody = selectedBody.GetComponent<CelestialBody>();
 
-        editPanelManager.displayGizmo();
+        gizmoPanelManager.displayGizmo();
         if (showVelocity) displayVelocityVector();
         if (showForces) displayForceVectors();
         if (showOrbit) displayOrbit();
@@ -235,6 +237,7 @@ public class SelectedBodyManager : MonoBehaviour
 
     public void changeToEditMode() {
         editPanel.SetActive(true);
+        gizmoPanel.SetActive(true);
         startEditPanel.SetActive(false);
 
         if (simulator.isSimulating) {
@@ -244,9 +247,10 @@ public class SelectedBodyManager : MonoBehaviour
     }
 
     public void changeToSimulationMode() {
-        editPanelManager.deselectGizmoButton();
-        editPanel.SetActive(false);
+        gizmoPanelManager.deselectGizmoButton();    
+        gizmoPanel.SetActive(false);
         startEditPanel.SetActive(true);
+        editPanel.SetActive(false);
 
         if (simulator.isSimulating) {
             simulator.ResumeSimulation();

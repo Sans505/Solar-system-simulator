@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EditPanelManager : MonoBehaviour
+public class GizmoPanelManager : MonoBehaviour
 {
     [SerializeField] Toggle gizmoButton;
     [SerializeField] SelectedBodyManager selectedBodyManager;

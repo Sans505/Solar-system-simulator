@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 
 public class BotonPausa : MonoBehaviour
 {
+    [SerializeField] NBodySimulation simulator;
     private bool estaPausado = false;
     private Button miBoton;
     private TextMeshProUGUI textoBoton;
@@ -21,12 +22,12 @@ public class BotonPausa : MonoBehaviour
 
         if (estaPausado)
         {
-            Time.timeScale = 0f;
+            simulator.PauseSimulation();
             if (textoBoton != null) textoBoton.text = "REANUDAR";
         }
         else
         {
-            Time.timeScale = 1f;
+            simulator.ResumeSimulation();
             if (textoBoton != null) textoBoton.text = "PAUSA";
         }
 
@@ -36,5 +37,16 @@ public class BotonPausa : MonoBehaviour
         {
             EventSystem.current.SetSelectedGameObject(null);
         }
+    }
+
+    public void Activate() {
+        estaPausado = false;
+        if (textoBoton != null) textoBoton.text = "PAUSA";
+        gameObject.SetActive(true);
+    }
+
+    public void Deactivate() {
+        estaPausado = false;
+        gameObject.SetActive(false);
     }
 }

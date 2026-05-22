@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 
 public class BotonVelocidad : MonoBehaviour
 {
+    [SerializeField] NBodySimulation simulator;
     private Slider sliderVelocidad;
     public float velocidad;
 
@@ -16,6 +17,6 @@ public class BotonVelocidad : MonoBehaviour
     public void velocidadSlider()
     {
             velocidad = sliderVelocidad.value;
-            Time.timeScale = (float)velocidad;
+            simulator.ChangeTimeScale((float)velocidad);
     }
 }

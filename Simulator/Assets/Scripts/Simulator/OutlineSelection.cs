@@ -15,7 +15,7 @@ public class OutlineSelection : MonoBehaviour
     [SerializeField]
     private SelectedBodyManager selectedBodyManager;
     [SerializeField]
-    private EditPanelManager editPanelManager;
+    private GizmoPanelManager gizmoPanelManager;
     [SerializeField]
     private UIHoverManager uiHoverManager;
 
@@ -89,7 +89,7 @@ public class OutlineSelection : MonoBehaviour
                 if (raycastHit.transform.CompareTag("Gizmo")) {
                     ArrowGenerator arrow = highlight.GetComponent<ArrowGenerator>();
                     //Debug.Log("Comenzar movimiento");
-                    editPanelManager.dragObjectWithGizmo(arrow);
+                    gizmoPanelManager.dragObjectWithGizmo(arrow);
                 }
                 // Selection
                 else
