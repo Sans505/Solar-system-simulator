@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PrintDatosMenu : MonoBehaviour
+public class GestorDatosMenu : MonoBehaviour
 {
     [Header("Inputs del Panel Física")]
     public TMP_InputField inputMasa;

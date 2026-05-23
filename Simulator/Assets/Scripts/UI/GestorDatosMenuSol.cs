@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI; 
 using TMPro; 
 
-public class PrintDatosMenuSol : MonoBehaviour
+public class GestorDatosMenuSol : MonoBehaviour
 {
     [Header("Contenedor Principal (Arrastra aquí PanelSol)")]
     public Transform panelSol;
