@@ -124,6 +124,7 @@ public class NBodySimulation : MonoBehaviour
 
         bodyListMenuManager.SetEntriesInfoList(bodyList);
         bodyListMenuManager.CreateEntries();
+        hudManager.CreateHUDs();
     }
 
     void FixedUpdate()
