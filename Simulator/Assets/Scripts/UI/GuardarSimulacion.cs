@@ -1,44 +1,58 @@
 using UnityEngine;
 using System.IO;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using TMPro; 
 
 [System.Serializable]
 public class DatosSimulacion
 {
-    // Añadir aquí las variables que se van a guardar
+    // Aqui irian las variables de los datos a guardar
 }
 
 public class GuardarSimulacion : MonoBehaviour
 {
+    private string carpetaSimulaciones;
+
+    [Header("Conexión con el Pop-up")]
+    public TMP_InputField cajaNombreArchivo; 
+    public GameObject popUpGuardar;
+
+    private void Start()
+    {
+        carpetaSimulaciones = Path.Combine(Application.persistentDataPath, "Simulaciones");
+
+        if (!Directory.Exists(carpetaSimulaciones))
+        {
+            Directory.CreateDirectory(carpetaSimulaciones);
+        }
+    }
+
     public void GuardarSim()
     {
-#if UNITY_EDITOR
-        string rutaElegida = EditorUtility.SaveFilePanel("Guardar Simulación", "", "simulacion", "json");
+        string nombreArchivo = cajaNombreArchivo.text;
 
-        if (!string.IsNullOrEmpty(rutaElegida))
+        if (string.IsNullOrEmpty(nombreArchivo) || string.IsNullOrWhiteSpace(nombreArchivo))
         {
-            DatosSimulacion datosAGuardar = new DatosSimulacion();
-            
-            // Asignar los valores a datosAGuardar antes de guardar
-
-            string textoJson = JsonUtility.ToJson(datosAGuardar, true);
-
-            using (StreamWriter outputFile = new StreamWriter(rutaElegida, false))
-            {
-                outputFile.Write(textoJson); 
-            }
-            
-            Debug.Log("Simulación guardada en: " + rutaElegida);
+            Debug.LogWarning("No se puede guardar: El nombre está vacío.");
+            return; 
         }
-        else
+
+        if (!nombreArchivo.EndsWith(".json"))
         {
-            Debug.Log("Guardado cancelado.");
+            nombreArchivo += ".json";
         }
-#else
-        Debug.LogWarning("El guardado con explorador requiere el Editor de Unity.");
-#endif
+
+        string rutaCompleta = Path.Combine(carpetaSimulaciones, nombreArchivo);
+
+        DatosSimulacion datosAGuardar = new DatosSimulacion();
+        
+        // Aqui se tienen que asignar los datos a las variables de antes
+
+        string textoJson = JsonUtility.ToJson(datosAGuardar, true);
+        File.WriteAllText(rutaCompleta, textoJson);
+        
+        Debug.Log("Simulación guardada con éxito en: " + rutaCompleta);
+
+        cajaNombreArchivo.text = "";
+        if (popUpGuardar != null) popUpGuardar.SetActive(false);
     }
 }
