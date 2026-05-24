@@ -4,10 +4,20 @@ using UnityEngine.UI;
 
 public class ListaBiomas : MonoBehaviour
 {
+    private EditMenuManager editMenuManager;
     [Header("Configuracion del Scroll View")]
     public Transform contenedorContent;  // Content del scroll view
     public GameObject biomaPrefab;  // Prefab
-    public void AñadirNuevoBioma()
+
+    void Start() {
+        editMenuManager = GetComponentInParent<EditMenuManager>();
+    }
+
+    public void AñadirNuevoBioma() {
+        AñadirNuevoBioma(true);
+    }
+
+    public void AñadirNuevoBioma(bool byUser)
     {
         if (biomaPrefab != null && contenedorContent != null)
         {
@@ -21,6 +31,8 @@ public class ListaBiomas : MonoBehaviour
                 btnMenos.onClick.AddListener(() => EliminarBioma(nuevoBioma));
             }
 
+            if (byUser) editMenuManager.AddBiome();
+
             ReorganizarNombres();
         }
     }
@@ -31,9 +43,18 @@ public class ListaBiomas : MonoBehaviour
         {
             Destroy(biomaAEliminar);
 
+            editMenuManager.DestroyBiome(biomaAEliminar.transform.GetSiblingIndex());
             //esperamos un frame para que se destruya el objeto antes de reorganizar los nombres
             Invoke(nameof(ReorganizarNombres), 0.1f);
+
         }
+    }
+
+    public void ResetBiomas() {
+        for (int i = contenedorContent.childCount - 1; i >= 1; i--) {
+            DestroyImmediate(contenedorContent.GetChild(i).gameObject);
+        }
+        ReorganizarNombres();
     }
 
     private void ReorganizarNombres()

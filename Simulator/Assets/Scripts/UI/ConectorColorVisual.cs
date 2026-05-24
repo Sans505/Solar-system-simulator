@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public class ConectorColorVisual : MonoBehaviour
 {
+    private EditMenuManager editMenuManager;
+
     [Header("Tus dos Imágenes (Arrastra aquí)")]
     public Image imagenColorUnico;      // La Image normal para el color único
     public RawImage imagenGradiente;   // La RawImage rectangular para el gradiente
@@ -19,6 +21,7 @@ public class ConectorColorVisual : MonoBehaviour
 
     private void Start()
     {
+        editMenuManager = GetComponentInParent<EditMenuManager>();
         // Decimos a tus botones que abran las ventanas al hacer clic
         if (botonAbrirColor != null)
             botonAbrirColor.onClick.AddListener(AbrirPopUpColor);
@@ -34,13 +37,17 @@ public class ConectorColorVisual : MonoBehaviour
     // --- LÓGICA DEL COLOR ÚNICO ---
     private void AbrirPopUpColor()
     {
-        ColorPicker.Create(colorGuardado, "Elige un Color", AlCambiarColor, null, true);
+        ColorPicker.Create(colorGuardado, "Elige un Color", AlCambiarColor, AlSeleccionarColor, true);
     }
 
     private void AlCambiarColor(Color nuevoColor)
     {
         colorGuardado = nuevoColor;
         PintarColorEnUI();
+    }
+
+    private void AlSeleccionarColor(Color nuevoColor) {
+        editMenuManager.UpdateBodyColorTint(colorGuardado, transform.GetSiblingIndex());
     }
 
     private void PintarColorEnUI()
@@ -54,7 +61,7 @@ public class ConectorColorVisual : MonoBehaviour
     // --- LÓGICA DEL GRADIENTE ---
     private void AbrirPopUpGradiente()
     {
-        GradientPicker.Create(gradienteGuardado, "Diseña tu Gradiente", AlCambiarGradiente, null);
+        GradientPicker.Create(gradienteGuardado, "Diseña tu Gradiente", AlCambiarGradiente, AlSeleccionarGradiente);
     }
 
     private void AlCambiarGradiente(Gradient nuevoGradiente)
@@ -64,6 +71,10 @@ public class ConectorColorVisual : MonoBehaviour
         gradienteGuardado.SetKeys(nuevoGradiente.colorKeys, nuevoGradiente.alphaKeys);
         
         PintarGradienteEnUI();
+    }
+
+    private void AlSeleccionarGradiente(Gradient nuevoGradiente) {
+        editMenuManager.UpdateBodyGradient(gradienteGuardado, transform.GetSiblingIndex());
     }
 
     private void PintarGradienteEnUI()
@@ -86,5 +97,14 @@ public class ConectorColorVisual : MonoBehaviour
         }
 
         texturaTexturaGradiente.Apply(); // Aplica los colores a la pantalla
+    }
+
+    public void EstablecerColorYGradiente(Color color, Gradient gradient) {
+        colorGuardado = color;
+        gradienteGuardado = new Gradient();
+        gradienteGuardado.SetKeys(gradient.colorKeys, gradient.alphaKeys);
+
+        PintarColorEnUI();
+        PintarGradienteEnUI();
     }
 }

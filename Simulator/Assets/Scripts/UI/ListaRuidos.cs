@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine.UI; 
 public class ListaRuidos : MonoBehaviour
 {
+    private EditMenuManager editMenuManager;
     public delegate void RuidosCambiadosHandler();
     public event RuidosCambiadosHandler OnRuidosCambiados;
 
@@ -13,7 +14,15 @@ public class ListaRuidos : MonoBehaviour
     // Prefab
     public GameObject bloqueRuidoPrefab;
 
-    public void AñadirNuevoRuido()
+    void Start() {
+        editMenuManager = GetComponentInParent<EditMenuManager>();
+    }
+
+    public void AñadirNuevoRuido() {
+        AñadirNuevoRuido(true);
+    }
+
+    public void AñadirNuevoRuido(bool byUser = true)
     {
         if (bloqueRuidoPrefab != null && contenedorContent != null)
         {
@@ -31,6 +40,10 @@ public class ListaRuidos : MonoBehaviour
                 botonEliminar.onClick.AddListener(() => EliminarRuido(nuevoRuido));
             }
 
+            if (byUser) {
+                editMenuManager.AddRuido();
+            }
+
             // Reorganizar nombres
             ReorganizarCapas();
             OnRuidosCambiados?.Invoke();
@@ -44,6 +57,21 @@ public class ListaRuidos : MonoBehaviour
             // Reorganizamos ignorando esta capa antes de destruirla
             ReorganizarCapas(ruidoEliminar);
             Destroy(ruidoEliminar);
+            editMenuManager.DestroyRuido(ruidoEliminar.transform.GetSiblingIndex());
+            if (gameObject.activeInHierarchy)
+            {
+                StartCoroutine(NotificarRuidosCambiadosEnSiguienteFrame());
+            }
+        }
+    }
+
+    public void ResetRuidos() {
+        for (int i = contenedorContent.childCount - 1; i >= 1; i--) {
+            DestroyImmediate(contenedorContent.GetChild(i).gameObject);
+        }
+        ReorganizarCapas();
+        if (gameObject.activeInHierarchy)
+        {
             StartCoroutine(NotificarRuidosCambiadosEnSiguienteFrame());
         }
     }

@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 public class SelectorColorMenu : MonoBehaviour
 {
+    [SerializeField] private EditMenuManager editMenuManager;
     // Aquí guardaremos el color o gradiente que el usuario diseñe
     [Header("Datos Guardados")]
     public Color colorElegido = Color.white;

@@ -5,7 +5,7 @@ using UnityEngine;
 public class Planet : MonoBehaviour, SharedSettings {
 
     [Range(2,256)]
-    public int resolution = 10;
+    public int resolution = 200;
     public bool autoUpdate = true;
 
     public ShapeSettings shapeSettings;
@@ -25,11 +25,19 @@ public class Planet : MonoBehaviour, SharedSettings {
     [SerializeField, HideInInspector]
     SphereCollider sphereCollider;
      
+    void Awake() {
+        if (shapeSettings == null || colourSettings == null) return;
+        shapeSettings = Instantiate(shapeSettings);
+        colourSettings = Instantiate(colourSettings);
+    }
     private void OnValidate() {
+        if (shapeSettings == null || colourSettings == null) return;
         GeneratePlanet();
     }
 	void Initialize()
     {
+        if (shapeSettings == null || colourSettings == null) return;
+
         shapeGenerator.UpdateSettings(shapeSettings);
         colourGenerator.UpdateSettings(colourSettings);
 
@@ -91,6 +99,7 @@ public class Planet : MonoBehaviour, SharedSettings {
 
     void GenerateMesh()
     {
+        if (terrainFaces == null) return;
         foreach (TerrainFace face in terrainFaces)
         {
             face.ConstructMesh();

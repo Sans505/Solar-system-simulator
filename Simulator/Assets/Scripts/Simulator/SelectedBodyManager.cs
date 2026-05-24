@@ -19,7 +19,7 @@ public class SelectedBodyManager : MonoBehaviour
     [SerializeField]
     private GameObject selectionModePanel;
     [SerializeField]
-    private GameObject editPanel;
+    private EditMenuManager editMenuManager;
     [SerializeField]
     private GameObject startEditPanel;
     [SerializeField]
@@ -42,6 +42,7 @@ public class SelectedBodyManager : MonoBehaviour
     private GizmoManager gizmoManager;
     private GameObject[] forceArrows;
     private bool isDoubleSelected;
+    private bool inEditMode = true;
 
     void Update() {
         if (selectedBodyExists) {
@@ -121,6 +122,11 @@ public class SelectedBodyManager : MonoBehaviour
         bodyListManager.UpdateSelectedEntry(selectedBody.name);
         selectionModePanel.SetActive(true);
         selectedBodyExists = true;
+
+        if (inEditMode)  {
+            gizmoPanelManager.ActivateGizmoButton();
+            editMenuManager.Activate(selectedBody);
+        }
     }
 
     public void SelectBody(string bodyName, bool isDoubleSelected) {
@@ -238,9 +244,11 @@ public class SelectedBodyManager : MonoBehaviour
     }
 
     public void changeToEditMode() {
-        editPanel.SetActive(true);
+        editMenuManager.SetEditMode(simulator.isSimulating);
+        editMenuManager.Activate(selectedBody);
         gizmoPanel.SetActive(true);
         startEditPanel.SetActive(false);
+        inEditMode = true;
 
         if (simulator.isSimulating) {
             pauseButtonManager.Deactivate();
@@ -253,7 +261,9 @@ public class SelectedBodyManager : MonoBehaviour
         gizmoPanelManager.deselectGizmoButton();    
         gizmoPanel.SetActive(false);
         startEditPanel.SetActive(true);
-        editPanel.SetActive(false);
+        editMenuManager.SetEditMode(simulator.isSimulating);
+        editMenuManager.Deactivate();
+        inEditMode = false;
 
         if (simulator.isSimulating) {
             pauseButtonManager.Activate();
