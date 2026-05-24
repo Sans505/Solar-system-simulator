@@ -5,13 +5,15 @@ using UnityEngine;
 public class CelestialBody : MonoBehaviour
 {
     public int id;
-    public float mass { get; private set; }
+    public float initialMass;
+    public float mass;
     public Vector3 initialPosition;
     public Quaternion initialRotation;
     public Vector3 initialVelocity;
     public Vector3 initialAngularVelocity;
-    public Vector3 velocity { get; private set; }
-    public Vector3 acceleration { get; private set; }
+    public Vector3 angularVelocity;
+    public Vector3 velocity;
+    public Vector3 acceleration;
     public bool destroyAfterSimulation = false;
     Rigidbody rb;
     
@@ -21,7 +23,9 @@ public class CelestialBody : MonoBehaviour
         velocity = initialVelocity;
         rb = GetComponent<Rigidbody> ();
         mass = rb.mass;
+        initialMass = mass;
         rb.useGravity = false;
+        angularVelocity = initialAngularVelocity;
         rb.angularVelocity = initialAngularVelocity;
         initialPosition = transform.position;
         initialRotation = transform.rotation;
@@ -29,15 +33,21 @@ public class CelestialBody : MonoBehaviour
     }
 
     public void Reset() {
+        mass = initialMass;
+        rb.mass = initialMass;
         velocity = initialVelocity;
+        angularVelocity = initialAngularVelocity;
         rb.angularVelocity = initialAngularVelocity;
         transform.position = initialPosition;
         transform.rotation = initialRotation;
     }
 
-    public void RegisterInitialTransform() {
+    public void RegisterInitialData() {
         initialPosition = transform.position;
         initialRotation = transform.rotation;
+        initialMass = mass;
+        initialVelocity = velocity;
+        initialAngularVelocity = angularVelocity;
     }
 
     //public void UpdateVelocity(CelestialBody[] allBodies, float timeStep)

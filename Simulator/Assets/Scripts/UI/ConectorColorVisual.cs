@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public class ConectorColorVisual : MonoBehaviour
 {
+    private EditMenuManager editMenuManager;
+
     [Header("Tus dos Imágenes (Arrastra aquí)")]
     public Image imagenColorUnico;      // La Image normal para el color único
     public RawImage imagenGradiente;   // La RawImage rectangular para el gradiente
@@ -19,6 +21,7 @@ public class ConectorColorVisual : MonoBehaviour
 
     private void Start()
     {
+        editMenuManager = GetComponentInParent<EditMenuManager>();
         // Decimos a tus botones que abran las ventanas al hacer clic
         if (botonAbrirColor != null)
             botonAbrirColor.onClick.AddListener(AbrirPopUpColor);
@@ -41,6 +44,8 @@ public class ConectorColorVisual : MonoBehaviour
     {
         colorGuardado = nuevoColor;
         PintarColorEnUI();
+
+        editMenuManager.UpdateBodyColorTint(colorGuardado, transform.GetSiblingIndex());
     }
 
     private void PintarColorEnUI()
@@ -64,6 +69,8 @@ public class ConectorColorVisual : MonoBehaviour
         gradienteGuardado.SetKeys(nuevoGradiente.colorKeys, nuevoGradiente.alphaKeys);
         
         PintarGradienteEnUI();
+
+        editMenuManager.UpdateBodyGradient(gradienteGuardado, transform.GetSiblingIndex());
     }
 
     private void PintarGradienteEnUI()
@@ -86,5 +93,14 @@ public class ConectorColorVisual : MonoBehaviour
         }
 
         texturaTexturaGradiente.Apply(); // Aplica los colores a la pantalla
+    }
+
+    public void EstablecerColorYGradiente(Color color, Gradient gradient) {
+        colorGuardado = color;
+        gradienteGuardado = new Gradient();
+        gradienteGuardado.SetKeys(gradient.colorKeys, gradient.alphaKeys);
+
+        PintarColorEnUI();
+        PintarGradienteEnUI();
     }
 }

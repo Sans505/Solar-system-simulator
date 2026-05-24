@@ -25,6 +25,10 @@ public class Planet : MonoBehaviour, SharedSettings {
     [SerializeField, HideInInspector]
     SphereCollider sphereCollider;
      
+    void Awake() {
+        shapeSettings = Instantiate(shapeSettings);
+        colourSettings = Instantiate(colourSettings);
+    }
     private void OnValidate() {
         GeneratePlanet();
     }

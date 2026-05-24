@@ -661,6 +661,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0037340543fe1e94d813265b6b09a13d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConectorColorVisual
+  editMenuManager: {fileID: 0}
   imagenColorUnico: {fileID: 2444043619742509229}
   imagenGradiente: {fileID: 2276697269721860973}
   botonAbrirColor: {fileID: 5233424621455539161}
@@ -1016,8 +1017,8 @@ MonoBehaviour:
   m_HandleRect: {fileID: 5185891772701143435}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 100
-  m_WholeNumbers: 1
+  m_MaxValue: 1
+  m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:

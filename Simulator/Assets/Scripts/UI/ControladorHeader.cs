@@ -57,4 +57,17 @@ public class ControladorHeader : MonoBehaviour
         inactivo1.GetComponent<Image>().color = colorInactivo;
         inactivo2.GetComponent<Image>().color = colorInactivo;
     }
+
+    public void MostrarSoloFisica() {
+        botonFisica.gameObject.SetActive(true);
+        botonForma.gameObject.SetActive(false);
+        botonColor.gameObject.SetActive(false);
+        MostrarFisica();
+    }
+
+    public void MostrarTodosLosBotones() {
+        botonFisica.gameObject.SetActive(true);
+        botonForma.gameObject.SetActive(true);
+        botonColor.gameObject.SetActive(true);
+    }
 }

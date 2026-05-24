@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine.UI; 
 public class ListaRuidos : MonoBehaviour
 {
+    private EditMenuManager editMenuManager;
     public delegate void RuidosCambiadosHandler();
     public event RuidosCambiadosHandler OnRuidosCambiados;
 
@@ -12,6 +13,10 @@ public class ListaRuidos : MonoBehaviour
 
     // Prefab
     public GameObject bloqueRuidoPrefab;
+
+    void Start() {
+        editMenuManager = GetComponentInParent<EditMenuManager>();
+    }
 
     public void AñadirNuevoRuido()
     {
@@ -44,8 +49,17 @@ public class ListaRuidos : MonoBehaviour
             // Reorganizamos ignorando esta capa antes de destruirla
             ReorganizarCapas(ruidoEliminar);
             Destroy(ruidoEliminar);
+            editMenuManager.DestroyRuido(ruidoEliminar.transform.GetSiblingIndex());
             StartCoroutine(NotificarRuidosCambiadosEnSiguienteFrame());
         }
+    }
+
+    public void ResetRuidos() {
+        for (int i = contenedorContent.childCount - 1; i >= 1; i--) {
+            DestroyImmediate(contenedorContent.GetChild(i).gameObject);
+        }
+        ReorganizarCapas();
+        StartCoroutine(NotificarRuidosCambiadosEnSiguienteFrame());
     }
 
     private IEnumerator NotificarRuidosCambiadosEnSiguienteFrame()

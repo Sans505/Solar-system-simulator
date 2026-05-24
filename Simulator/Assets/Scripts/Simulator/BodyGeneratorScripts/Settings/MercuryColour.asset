@@ -44,7 +44,7 @@ MonoBehaviour:
         m_ColorSpace: 0
         m_NumColorKeys: 3
         m_NumAlphaKeys: 3
-      tint: {r: 0, g: 0, b: 0, a: 0}
+      tint: {r: 0, g: 0, b: 0, a: 1}
       startHeight: 0
       tintPercent: 0.292
     - gradient:
@@ -77,9 +77,9 @@ MonoBehaviour:
         m_ColorSpace: 0
         m_NumColorKeys: 3
         m_NumAlphaKeys: 3
-      tint: {r: 0, g: 0, b: 0, a: 0}
+      tint: {r: 0, g: 0, b: 0, a: 1}
       startHeight: 1
-      tintPercent: 0.522
+      tintPercent: 0.527
     noise:
       strength: 1.09
       numLayers: 3

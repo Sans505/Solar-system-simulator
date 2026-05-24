@@ -45,7 +45,7 @@ public class NBodySimulation : MonoBehaviour
     public void StartSimulation() {
 
         foreach (CelestialBody body in bodies) {
-            body.RegisterInitialTransform();
+            body.RegisterInitialData();
         }
         selectedBodyManager.changeToSimulationMode();
         pauseButton.Activate();
