@@ -53,7 +53,7 @@ public class GestorDatosMenu : MonoBehaviour
         DesvincularListaRuidos();
     }
 
-    private void VincularListaRuidos()
+    public void VincularListaRuidos()
     {
         DesvincularListaRuidos();
 
@@ -139,9 +139,23 @@ public class GestorDatosMenu : MonoBehaviour
         Slider slider = sliderObj.GetComponent<Slider>();
         if (slider == null) return;
 
-        slider.onValueChanged.RemoveAllListeners();
-        string valorFormat = etiqueta == "Capas" ? "F0" : "F2";
-        slider.onValueChanged.AddListener(v => editMenuManager.UpdateBodyNumericData(etiqueta, v, capaNum));
+        // Obtener o añadir el listener custom
+        SliderReleaseListener listener = sliderObj.GetComponent<SliderReleaseListener>();
+
+        if (listener == null)
+        {
+            listener = sliderObj.gameObject.AddComponent<SliderReleaseListener>();
+            listener.slider = slider;
+        }
+
+        // limpiar listeners anteriores
+        listener.onRelease.RemoveAllListeners();
+
+        // Asignar nuevo listener
+        listener.onRelease.AddListener(v =>
+        {
+            editMenuManager.UpdateBodyNumericData(etiqueta, v, capaNum);
+        });
     }
 
     private void RegistrarSliderBioma(Transform padre, string nombre, int biomaNum, string etiqueta)
@@ -152,10 +166,23 @@ public class GestorDatosMenu : MonoBehaviour
         Slider slider = sliderObj.GetComponent<Slider>();
         if (slider == null) return;
 
-        slider.onValueChanged.RemoveAllListeners();
-        slider.onValueChanged.AddListener(v => 
-            editMenuManager.UpdateBodyNumericData(etiqueta, v, biomaNum)
-        );
+        // Obtener o añadir el listener custom
+        SliderReleaseListener listener = sliderObj.GetComponent<SliderReleaseListener>();
+
+        if (listener == null)
+        {
+            listener = sliderObj.gameObject.AddComponent<SliderReleaseListener>();
+            listener.slider = slider;
+        }
+
+        // limpiar listeners anteriores
+        listener.onRelease.RemoveAllListeners();
+
+        // Asignar nuevo listener
+        listener.onRelease.AddListener(v =>
+        {
+            editMenuManager.UpdateBodyNumericData(etiqueta, v, biomaNum);
+        });
     }
 
     private void RegistrarInputCapas(Transform padre, string nombre, int capaNum, string etiqueta)
@@ -242,7 +269,7 @@ public class GestorDatosMenu : MonoBehaviour
         ShapeSettings.NoiseLayer[] noiseLayers = settings.noiseLayers;
 
         for (int i = 1; i < noiseLayers.Length; i++) {
-            listaRuidos.AñadirNuevoRuido();
+            listaRuidos.AñadirNuevoRuido(false);
         }
 
 
@@ -302,7 +329,7 @@ public class GestorDatosMenu : MonoBehaviour
         ColourSettings.BiomeColourSettings.Biome[] biomes = settings.biomeColourSettings.biomes;
 
         for (int i = 1; i < biomes.Length; i++) {
-            listaBiomas.AñadirNuevoBioma();
+            listaBiomas.AñadirNuevoBioma(false);
         }
 
 
@@ -314,6 +341,18 @@ public class GestorDatosMenu : MonoBehaviour
             colorVisualConector.EstablecerColorYGradiente(biomes[i].tint, biomes[i].gradient);
 
             RegistrarValorSlider(bioma, "SliderTinte", biomes[i].tintPercent);
+            RegistrarSliderBioma(bioma, "SliderTinte", i, "Tinte");
+        }
+    }
+
+    public void ActualizarLisenersSlidersBiomas() {
+
+        Transform contentBiomas = listaBiomas.contenedorContent;
+
+        for (int i = 0; i < contentBiomas.childCount; i++)
+        {
+            Transform bioma = contentBiomas.GetChild(i);
+
             RegistrarSliderBioma(bioma, "SliderTinte", i, "Tinte");
         }
     }

@@ -8,6 +8,7 @@ public class NBodySimulation : MonoBehaviour
     [SerializeField] SelectedBodyManager selectedBodyManager;
     [SerializeField] HUDManager hudManager;
     [SerializeField] BotonPausa pauseButton;
+    [SerializeField] BodyCreationManager bodyCreationManager;
 
     private CelestialBody[] bodies;
     public List<GameObject> bodyList;
@@ -51,6 +52,7 @@ public class NBodySimulation : MonoBehaviour
         pauseButton.Activate();
         isSimulating = true;
         Time.timeScale = timeScale;
+        bodyCreationManager.Deactivate();
     }
 
     public void StopSimulation() {
@@ -84,6 +86,7 @@ public class NBodySimulation : MonoBehaviour
         hudManager.CreateHUDs();
         selectedBodyManager.changeToEditMode();
         pauseButton.Deactivate();
+        bodyCreationManager.Activate();
     }
 
     public void PauseSimulation() {
@@ -104,6 +107,23 @@ public class NBodySimulation : MonoBehaviour
         if (isSimulating && !isPaused) {
             Time.timeScale = newTimeScale;
         }
+    }
+
+    public void AddNewBody(GameObject newBody) {
+        
+        int newBodyId = bodies.Length;
+        CelestialBody[] newBodiesArray = new CelestialBody[bodies.Length + 1];
+        for (int i = 0; i < bodies.Length; i++) {
+            newBodiesArray[i] = bodies[i];
+        }
+        CelestialBody newCelestialBody = newBody.GetComponent<CelestialBody>();
+        newCelestialBody.id = newBodyId;
+        newBodiesArray[newBodyId] = newCelestialBody;
+        bodies = newBodiesArray;
+        bodyList.Add(newBody);
+
+        bodyListMenuManager.SetEntriesInfoList(bodyList);
+        bodyListMenuManager.CreateEntries();
     }
 
     void FixedUpdate()

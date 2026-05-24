@@ -69,4 +69,11 @@ public class BodyListMenuManager : MonoBehaviour
         selectedEntry = entry;
         selectedEntry.Select();
     }
+
+    public bool containsEntry(string name) {
+        foreach (BodyEntry entry in entries) {
+            if (entry.name == name) return true;
+        } 
+        return false;
+    }
 }

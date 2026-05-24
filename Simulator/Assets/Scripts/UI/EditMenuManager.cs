@@ -156,55 +156,70 @@ public class EditMenuManager : MonoBehaviour
                 break;
         }
 
-        Planet planet = body.GetComponent<Planet>();
-
-        if (planet != null && valueChanged) {
-            planet.GeneratePlanet();
-        }
+        if (valueChanged) regenerateBody();
     }
 
     public void UpdateBodyColorTint(Color tint, int biomeNum) {
         bodyColourSettings.biomeColourSettings.biomes[biomeNum].tint = tint;
 
-        Planet planet = body.GetComponent<Planet>();
-
-        if (planet != null) {
-            planet.GeneratePlanet();
-        }
+        regenerateBody();
     }
 
     public void UpdateBodyGradient(Gradient gradient, int biomeNum) {
         bodyColourSettings.biomeColourSettings.biomes[biomeNum].gradient = gradient;
 
-        Planet planet = body.GetComponent<Planet>();
-
-        if (planet != null) {
-            planet.GeneratePlanet();
-        }
+        regenerateBody();
     }
+
+    public void AddRuido() {
+        ShapeSettings.NoiseLayer newNoiseLayer = new ShapeSettings.NoiseLayer();
+        newNoiseLayer.noiseSettings = new NoiseSettings();
+        bodyShapeSettings.noiseLayers = AñadirElementoAlFinal(bodyShapeSettings.noiseLayers, newNoiseLayer);
+
+        regenerateBody();
+    }
+
+    public void AddBiome() {
+        ColourSettings.BiomeColourSettings.Biome newBiome = new ColourSettings.BiomeColourSettings.Biome();
+        newBiome.tint = Color.white;
+        newBiome.gradient = new Gradient();
+        bodyColourSettings.biomeColourSettings.biomes = AñadirElementoAlFinal(bodyColourSettings.biomeColourSettings.biomes, newBiome);
+
+        menuDataManager.ActualizarLisenersSlidersBiomas();
+        ReorganizeBiomesStartHeight();
+        regenerateBody();
+    }
+
 
     public void DestroyRuido(int ruidoId) {
         bodyShapeSettings.noiseLayers = 
             EliminarIndice<ShapeSettings.NoiseLayer>(
                 bodyShapeSettings.noiseLayers, ruidoId);
-        
-        Planet planet = body.GetComponent<Planet>();
 
-        if (planet != null) {
-            planet.GeneratePlanet();
-        }
+        menuDataManager.VincularListaRuidos();
+        
+        regenerateBody();
     }
 
     public void DestroyBiome(int biomeId) {
         bodyColourSettings.biomeColourSettings.biomes = 
             EliminarIndice<ColourSettings.BiomeColourSettings.Biome>(
                 bodyColourSettings.biomeColourSettings.biomes, biomeId);
+        
+        menuDataManager.ActualizarLisenersSlidersBiomas();
+        ReorganizeBiomesStartHeight();
 
-        Planet planet = body.GetComponent<Planet>();
+        regenerateBody();
+    }
 
-        if (planet != null) {
-            planet.GeneratePlanet();
-        }    
+    private void ReorganizeBiomesStartHeight() {
+        ColourSettings.BiomeColourSettings.Biome[] biomes = bodyColourSettings.biomeColourSettings.biomes;
+
+        float heightInterval = 1f / biomes.Length;
+
+        for (int i = 0; i < biomes.Length; i++) {
+            biomes[i].startHeight = heightInterval * i;
+        }
     }
 
     private static T[] EliminarIndice<T>(T[] array, int indice)
@@ -227,5 +242,30 @@ public class EditMenuManager : MonoBehaviour
         }
 
         return nuevo;
+    }
+
+    private static T[] AñadirElementoAlFinal<T>(T[] array, T elemento)
+    {
+        if (array == null || array.Length == 0)
+            return array;
+
+        T[] nuevo = new T[array.Length + 1];
+
+        for (int i = 0; i < array.Length; i++)
+        {
+            nuevo[i] = array[i];
+        }
+
+        nuevo[array.Length] = elemento;
+
+        return nuevo;
+    }
+
+    private void regenerateBody() {
+        Planet planet = body.GetComponent<Planet>();
+
+        if (planet != null) {
+            planet.GeneratePlanet();
+        }  
     }
 }

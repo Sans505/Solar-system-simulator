@@ -136,7 +136,10 @@ public class OutlineSelection : MonoBehaviour
             {
                 if (selection)
                 {
-                    selection.GetComponent<Outline>().enabled = false;
+                    Outline outline = selection.GetComponent<Outline>();
+                    if (outline != null) {
+                        outline.enabled = false;
+                    }
                     selection = null;
 
                     //selectedBodyManager.Deselect();

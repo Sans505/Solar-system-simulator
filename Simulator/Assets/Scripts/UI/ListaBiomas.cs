@@ -13,7 +13,11 @@ public class ListaBiomas : MonoBehaviour
         editMenuManager = GetComponentInParent<EditMenuManager>();
     }
 
-    public void AñadirNuevoBioma()
+    public void AñadirNuevoBioma() {
+        AñadirNuevoBioma(true);
+    }
+
+    public void AñadirNuevoBioma(bool byUser)
     {
         if (biomaPrefab != null && contenedorContent != null)
         {
@@ -26,6 +30,8 @@ public class ListaBiomas : MonoBehaviour
                 btnMenos.onClick.RemoveAllListeners();
                 btnMenos.onClick.AddListener(() => EliminarBioma(nuevoBioma));
             }
+
+            if (byUser) editMenuManager.AddBiome();
 
             ReorganizarNombres();
         }

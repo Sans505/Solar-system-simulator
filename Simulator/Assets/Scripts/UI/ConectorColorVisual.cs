@@ -37,14 +37,16 @@ public class ConectorColorVisual : MonoBehaviour
     // --- LÓGICA DEL COLOR ÚNICO ---
     private void AbrirPopUpColor()
     {
-        ColorPicker.Create(colorGuardado, "Elige un Color", AlCambiarColor, null, true);
+        ColorPicker.Create(colorGuardado, "Elige un Color", AlCambiarColor, AlSeleccionarColor, true);
     }
 
     private void AlCambiarColor(Color nuevoColor)
     {
         colorGuardado = nuevoColor;
         PintarColorEnUI();
+    }
 
+    private void AlSeleccionarColor(Color nuevoColor) {
         editMenuManager.UpdateBodyColorTint(colorGuardado, transform.GetSiblingIndex());
     }
 
@@ -59,7 +61,7 @@ public class ConectorColorVisual : MonoBehaviour
     // --- LÓGICA DEL GRADIENTE ---
     private void AbrirPopUpGradiente()
     {
-        GradientPicker.Create(gradienteGuardado, "Diseña tu Gradiente", AlCambiarGradiente, null);
+        GradientPicker.Create(gradienteGuardado, "Diseña tu Gradiente", AlCambiarGradiente, AlSeleccionarGradiente);
     }
 
     private void AlCambiarGradiente(Gradient nuevoGradiente)
@@ -69,7 +71,9 @@ public class ConectorColorVisual : MonoBehaviour
         gradienteGuardado.SetKeys(nuevoGradiente.colorKeys, nuevoGradiente.alphaKeys);
         
         PintarGradienteEnUI();
+    }
 
+    private void AlSeleccionarGradiente(Gradient nuevoGradiente) {
         editMenuManager.UpdateBodyGradient(gradienteGuardado, transform.GetSiblingIndex());
     }
 

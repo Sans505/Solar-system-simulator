@@ -18,7 +18,11 @@ public class ListaRuidos : MonoBehaviour
         editMenuManager = GetComponentInParent<EditMenuManager>();
     }
 
-    public void AñadirNuevoRuido()
+    public void AñadirNuevoRuido() {
+        AñadirNuevoRuido(true);
+    }
+
+    public void AñadirNuevoRuido(bool byUser = true)
     {
         if (bloqueRuidoPrefab != null && contenedorContent != null)
         {
@@ -36,6 +40,10 @@ public class ListaRuidos : MonoBehaviour
                 botonEliminar.onClick.AddListener(() => EliminarRuido(nuevoRuido));
             }
 
+            if (byUser) {
+                editMenuManager.AddRuido();
+            }
+
             // Reorganizar nombres
             ReorganizarCapas();
             OnRuidosCambiados?.Invoke();
@@ -50,7 +58,10 @@ public class ListaRuidos : MonoBehaviour
             ReorganizarCapas(ruidoEliminar);
             Destroy(ruidoEliminar);
             editMenuManager.DestroyRuido(ruidoEliminar.transform.GetSiblingIndex());
-            StartCoroutine(NotificarRuidosCambiadosEnSiguienteFrame());
+            if (gameObject.activeInHierarchy)
+            {
+                StartCoroutine(NotificarRuidosCambiadosEnSiguienteFrame());
+            }
         }
     }
 
@@ -59,7 +70,10 @@ public class ListaRuidos : MonoBehaviour
             DestroyImmediate(contenedorContent.GetChild(i).gameObject);
         }
         ReorganizarCapas();
-        StartCoroutine(NotificarRuidosCambiadosEnSiguienteFrame());
+        if (gameObject.activeInHierarchy)
+        {
+            StartCoroutine(NotificarRuidosCambiadosEnSiguienteFrame());
+        }
     }
 
     private IEnumerator NotificarRuidosCambiadosEnSiguienteFrame()
