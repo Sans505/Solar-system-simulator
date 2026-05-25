@@ -5,6 +5,7 @@ public class EditMenuManager : MonoBehaviour
 {
     [SerializeField] private ControladorHeader headerController;
     [SerializeField] private GestorDatosMenu menuDataManager;
+    [SerializeField] private GestorDatosMenuSol sunMenuDataManager;
 
     private GameObject body;
     private CelestialBody celestialBody;
@@ -29,14 +30,16 @@ public class EditMenuManager : MonoBehaviour
         if (planet != null) {
             bodyShapeSettings = planet.shapeSettings;
             bodyColourSettings = planet.colourSettings;
+            headerController.CambiarPaneles(true);
+            DisplayPlanetData();
         } else if (sun != null) {
             bodySunSettings = sun.sunSettings;
+            headerController.CambiarPaneles(false);
+            DisplaySunData();
         } else {
             NotificationManager.instance.ShowNotification("Error: Información del astro perdida", NotificationType.Error);
             return;
         }
-
-        DisplayBodyData();
     }
 
     public void Deactivate() {
@@ -51,11 +54,16 @@ public class EditMenuManager : MonoBehaviour
         }
     }
 
-    private void DisplayBodyData() {
+    private void DisplayPlanetData() {
 
         menuDataManager.RegistrarValoresFijos(celestialBody, body.GetComponent<SharedSettings>());
         menuDataManager.RegistrarValoresRuido(bodyShapeSettings);
         menuDataManager.RegistrarValoresBiomas(bodyColourSettings);
+    }
+
+    private void DisplaySunData() {
+        sunMenuDataManager.RegistrarValoresFijos(celestialBody, body.GetComponent<SharedSettings>());
+        sunMenuDataManager.RegistrarValoresSol(bodySunSettings);
     }
 
     public void UpdateBodyNumericData(string dataTag, float value, int numCapaOBioma = -1) {
@@ -64,6 +72,9 @@ public class EditMenuManager : MonoBehaviour
         bool valueChanged = false;
 
         switch(dataTag) {
+
+            // ------------------- DATOS DE PLANETAS ----------------
+
             case "Fuerza":
                 valueChanged = bodyShapeSettings.noiseLayers[numCapaOBioma].noiseSettings.strength != value;
                 bodyShapeSettings.noiseLayers[numCapaOBioma].noiseSettings.strength = value;
@@ -100,48 +111,58 @@ public class EditMenuManager : MonoBehaviour
                 valueChanged = bodyShapeSettings.noiseLayers[numCapaOBioma].noiseSettings.minValue != value;
                 bodyShapeSettings.noiseLayers[numCapaOBioma].noiseSettings.minValue = value;
                 break;
+            case "InputMasaSol":
             case "Masa":
                 valueChanged = false;
                 celestialBody.mass = value;
                 break;
+            case "InputCXSol":
             case "PosX":
                 pos = body.transform.position;
                 valueChanged = false;
                 pos.x = value;
                 body.transform.position = pos;
                 break;
+            case "InputCYSol":
             case "PosY":
                 pos = body.transform.position;
                 valueChanged = false;
                 pos.y = value;
                 body.transform.position = pos;
                 break;
+            case "InputCZSol":
             case "PosZ":
                 pos = body.transform.position;
                 valueChanged = false;
                 pos.z = value;
                 body.transform.position = pos;
                 break;
+            case "InputVXSol":
             case "VelX":
                 valueChanged = false;
                 celestialBody.velocity.x = value;
                 break;
             case "VelY":
+            case "InputVYSol":
                 valueChanged = false;
                 celestialBody.velocity.y = value;
                 break;
             case "VelZ":
+            case "InputVZSol":
                 valueChanged = false;
                 celestialBody.velocity.z = value;
                 break;
+            case "InputVRXSol":
             case "VelRotX":
                 valueChanged = false;
                 celestialBody.angularVelocity.x = value;
                 break;
+            case "InputVRYSol":
             case "VelRotY":
                 valueChanged = false;
                 celestialBody.angularVelocity.y = value;
                 break;
+            case "InputVRZSol":
             case "VelRotZ":
                 valueChanged = false;
                 celestialBody.angularVelocity.z = value;
@@ -154,6 +175,45 @@ public class EditMenuManager : MonoBehaviour
                 valueChanged = bodyColourSettings.biomeColourSettings.biomes[numCapaOBioma].tintPercent != value;
                 bodyColourSettings.biomeColourSettings.biomes[numCapaOBioma].tintPercent = value;
                 break;
+            
+            // ------------------ DATOS DE SOL -----------------------
+
+
+            case "InputRadioSol":
+
+                valueChanged = bodySunSettings.sunRadius != value;
+                bodySunSettings.sunRadius = value;
+                break;
+            case "SliderNoiseScale":
+                valueChanged = bodySunSettings.NoiseScale != value;
+                bodySunSettings.NoiseScale = value;
+                break;
+
+            case "SliderNoisePower":
+                valueChanged = bodySunSettings.NoisePower != value;
+                bodySunSettings.NoisePower = value;
+                break;
+
+            case "SliderShaderIntensity":
+                valueChanged = bodySunSettings.shaderIntensity != value;
+                bodySunSettings.shaderIntensity = value;
+                break;
+
+            case "SliderTwirlStrength":
+                valueChanged = bodySunSettings.TwirlStrength != value;
+                bodySunSettings.TwirlStrength = value;
+                break;
+
+            case "SliderDistortionScale":
+                valueChanged = bodySunSettings.DistorsionScale != value;
+                bodySunSettings.DistorsionScale = value;
+                break;
+
+            case "SliderPanSpeed":
+                Vector2 panSpeed = new Vector2(value, value);
+                valueChanged = bodySunSettings.PanSpeed != panSpeed;
+                bodySunSettings.PanSpeed = panSpeed;
+                break;
         }
 
         if (valueChanged) regenerateBody();
@@ -161,6 +221,12 @@ public class EditMenuManager : MonoBehaviour
 
     public void UpdateBodyColorTint(Color tint, int biomeNum) {
         bodyColourSettings.biomeColourSettings.biomes[biomeNum].tint = tint;
+
+        regenerateBody();
+    }
+
+    public void UpdateSunColor(Color color) {
+        bodySunSettings.BaseColor = color;
 
         regenerateBody();
     }
@@ -262,10 +328,18 @@ public class EditMenuManager : MonoBehaviour
     }
 
     private void regenerateBody() {
-        Planet planet = body.GetComponent<Planet>();
 
-        if (planet != null) {
-            planet.GeneratePlanet();
-        }  
+        if (headerController.editandoPlaneta) {
+            Planet planet = body.GetComponent<Planet>();
+
+            if (planet != null) {
+                planet.GeneratePlanet();
+            }  
+        } else {
+            Sun sun = body.GetComponent<Sun>();
+            if (sun != null) {
+                sun.GenerateSun();
+            }
+        } 
     }
 }

@@ -30,6 +30,8 @@ public class SelectedBodyManager : MonoBehaviour
     private GizmoPanelManager gizmoPanelManager;
     [SerializeField]
     private BotonPausa pauseButtonManager;
+    [SerializeField] 
+    BodyDeletionManager bodyDeletionManager;
 
     public GameObject selectedBody;
     public CelestialBody selectedCelestialBody;
@@ -126,7 +128,11 @@ public class SelectedBodyManager : MonoBehaviour
         if (inEditMode)  {
             gizmoPanelManager.ActivateGizmoButton();
             editMenuManager.Activate(selectedBody);
+            if (!simulator.isSimulating) {
+                bodyDeletionManager.Activate();
+            }
         }
+        
     }
 
     public void SelectBody(string bodyName, bool isDoubleSelected) {
@@ -244,8 +250,8 @@ public class SelectedBodyManager : MonoBehaviour
     }
 
     public void changeToEditMode() {
-        editMenuManager.SetEditMode(simulator.isSimulating);
         editMenuManager.Activate(selectedBody);
+        editMenuManager.SetEditMode(simulator.isSimulating);
         gizmoPanel.SetActive(true);
         startEditPanel.SetActive(false);
         inEditMode = true;
@@ -254,6 +260,8 @@ public class SelectedBodyManager : MonoBehaviour
             pauseButtonManager.Deactivate();
             simulator.PauseSimulation();
             NotificationManager.instance.ShowNotification("Simulación pausada", NotificationType.Info);
+        } else {
+            bodyDeletionManager.Activate();
         }
     }
 
@@ -261,9 +269,10 @@ public class SelectedBodyManager : MonoBehaviour
         gizmoPanelManager.deselectGizmoButton();    
         gizmoPanel.SetActive(false);
         startEditPanel.SetActive(true);
-        editMenuManager.SetEditMode(simulator.isSimulating);
         editMenuManager.Deactivate();
+        editMenuManager.SetEditMode(simulator.isSimulating);
         inEditMode = false;
+        bodyDeletionManager.Deactivate();
 
         if (simulator.isSimulating) {
             pauseButtonManager.Activate();
@@ -282,8 +291,10 @@ public class SelectedBodyManager : MonoBehaviour
     }
 
     public void Deselect() {
-        Outline outline = selectedBody.GetComponent<Outline>();
-        if (outline != null) outline.enabled = false;
+        if (selectedBody != null) {
+            Outline outline = selectedBody.GetComponent<Outline>();
+            if (outline != null) outline.enabled = false;
+        }
         selectedBody = null;
         isDoubleSelected = false;
         orbitLine.Clear();
@@ -296,6 +307,7 @@ public class SelectedBodyManager : MonoBehaviour
         }
         selectionModePanel.SetActive(false);
         gizmos.SetActive(false);
+        bodyDeletionManager.Deactivate();
 
     }
     

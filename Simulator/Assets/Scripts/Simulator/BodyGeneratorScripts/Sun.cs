@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Sun : MonoBehaviour, SharedSettings
 {
-    private NBodySimulation simulator;
+    public NBodySimulation simulator;
     public bool autoUpdate = true;
     public SunSettings sunSettings;
     [SerializeField, HideInInspector]
@@ -10,12 +10,13 @@ public class Sun : MonoBehaviour, SharedSettings
     [SerializeField, HideInInspector]
     Light pointLight;
 
-    void Start()
-    {
-        simulator = transform.parent.GetComponent<NBodySimulation>();
+    void Awake() {
+        if (sunSettings == null) return;
+        sunSettings = Instantiate(sunSettings);
     }
 
     private void OnValidate() {
+        if (sunSettings == null) return;
         GenerateSun();
     }
     public void OnSettingsUpdated()
@@ -32,6 +33,7 @@ public class Sun : MonoBehaviour, SharedSettings
         {
             sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             sphere.transform.parent = transform;
+            sphere.transform.localPosition = Vector3.zero;
         }
         if (pointLight == null)
         {
@@ -58,8 +60,10 @@ public class Sun : MonoBehaviour, SharedSettings
     }
 
     void Update()
-    {
+    {   
+        if (simulator == null) return;
         float maximumDistance = 0f;
+
         foreach (GameObject body in simulator.bodyList)
         {
             if (body != this)

@@ -71,7 +71,16 @@ public class BodyCreationManager : MonoBehaviour
         newBodyInstance.name = name;
         simulator.AddNewBody(newBodyInstance);
         
-        newBodyInstance.GetComponent<Planet>().GeneratePlanet();
+        Planet planet = newBodyInstance.GetComponent<Planet>();
+        Sun sun = newBodyInstance.GetComponent<Sun>();
+        if (planet != null) {
+            planet.GeneratePlanet();
+        } else if (sun != null){
+            sun.simulator = simulator;
+            sun.GenerateSun();
+        }
+
+        selectedBodyManager.SelectBody(newBodyInstance, true);
 
         creationSubPanel.SetActive(false);
         NotificationManager.instance.ShowNotification("Astro creado con éxito", NotificationType.Info);
@@ -123,7 +132,16 @@ public class BodyCreationManager : MonoBehaviour
     }
 
     private void CreateSun(GameObject newBody) {
+        Sun sun = newBody.AddComponent<Sun>();
 
+        SunSettings sunSettings = ScriptableObject.CreateInstance<SunSettings>();
+        sunSettings.BaseColor = Color.white;
+
+        Shader shader = Shader.Find("Shader Graphs/Sun");
+        Material material = new Material(shader);
+        sunSettings.sunMaterial = material;
+
+        sun.sunSettings = sunSettings;
     }
 
 }

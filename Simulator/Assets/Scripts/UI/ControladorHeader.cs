@@ -110,4 +110,9 @@ public class ControladorHeader : MonoBehaviour
         botonForma.gameObject.SetActive(true);
         botonColor.gameObject.SetActive(true);
     }
+
+    public void CambiarPaneles(bool planetEdit) {
+        editandoPlaneta = planetEdit;
+        MostrarFisica();
+    }
 }

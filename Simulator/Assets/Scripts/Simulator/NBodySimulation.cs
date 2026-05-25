@@ -127,6 +127,27 @@ public class NBodySimulation : MonoBehaviour
         hudManager.CreateHUDs();
     }
 
+    public void DeleteBody(GameObject body) {
+        bodyList.Remove(body);
+
+        List<CelestialBody> celestialBodyList = new List<CelestialBody>();
+
+        for (int i = 0; i < bodyList.Count; i++) {
+            CelestialBody celestialBody = bodyList[i].GetComponent<CelestialBody>();
+            celestialBody.id = i;
+            celestialBodyList.Add(celestialBody);
+        }
+
+        bodies = celestialBodyList.ToArray();
+
+        Destroy(body);
+
+        bodyListMenuManager.SetEntriesInfoList(bodyList);
+        bodyListMenuManager.CreateEntries();
+        hudManager.CreateHUDs();
+        
+    }
+
     void FixedUpdate()
     {
         for (int i = 0; i < bodies.Length; i++)

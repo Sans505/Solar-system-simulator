@@ -1,11 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI; 
-using TMPro; 
+using TMPro;
+using System.Collections.Generic;
 
 public class GestorDatosMenuSol : MonoBehaviour
-{
+{   
+    [SerializeField] EditMenuManager editMenuManager;
+    [SerializeField] SelectorColorSol selectorColorSol;
     [Header("Contenedor Principal (Arrastra aquí PanelSol)")]
     public Transform panelSol;
+
+    private Dictionary<string, TMP_InputField> inputs = new Dictionary<string, TMP_InputField>();
+    private Dictionary<string, Slider> sliders = new Dictionary<string, Slider>();
 
     private void Start()
     {
@@ -45,13 +51,11 @@ public class GestorDatosMenuSol : MonoBehaviour
         if (obj != null)
         {
             TMP_InputField input = obj.GetComponent<TMP_InputField>();
-            
-            // Cuando cambie, llama a la función pasándole SU NOMBRE y SU NUEVO VALOR
-            input.onValueChanged.AddListener((nuevoValor) => AplicarCambioStr(nombreObjeto, nuevoValor));
-        }
-        else
-        {
-            Debug.LogWarning($"[PrintDatosSol] No se encontró el Input: '{nombreObjeto}'");
+
+            inputs[nombreObjeto] = input; // 👈 GUARDAMOS
+
+            input.onEndEdit.AddListener(v => 
+                editMenuManager.UpdateBodyNumericData(nombreObjeto, float.Parse(v)));
         }
     }
 
@@ -61,13 +65,16 @@ public class GestorDatosMenuSol : MonoBehaviour
         if (obj != null)
         {
             Slider slider = obj.GetComponent<Slider>();
-            
-            // Cuando cambie, llama a la función pasándole SU NOMBRE y SU NUEVO VALOR DECIMAL
-            slider.onValueChanged.AddListener((nuevoValor) => AplicarCambioFloat(nombreObjeto, nuevoValor));
-        }
-        else
-        {
-            Debug.LogWarning($"[PrintDatosSol] No se encontró el Slider: '{nombreObjeto}'");
+
+            sliders[nombreObjeto] = slider; // 👈 GUARDAMOS
+
+            SliderReleaseListener listener = obj.gameObject.AddComponent<SliderReleaseListener>();
+            listener.slider = slider;
+
+            listener.onRelease.AddListener(v =>
+            {
+                editMenuManager.UpdateBodyNumericData(nombreObjeto, v);
+            });
         }
     }
 
@@ -92,6 +99,63 @@ public class GestorDatosMenuSol : MonoBehaviour
 
         //Aqui entiendo que es donde metes lo de cambiar el valor
 
+    }
+
+    public void RegistrarValoresFijos(CelestialBody celestialBody, SharedSettings sharedSettings) {
+        if (inputs.ContainsKey("InputMasaSol"))
+        inputs["InputMasaSol"].SetTextWithoutNotify(celestialBody.mass.ToString());
+
+        if (inputs.ContainsKey("InputCXSol"))
+            inputs["InputCXSol"].SetTextWithoutNotify(celestialBody.transform.position.x.ToString());
+
+        if (inputs.ContainsKey("InputCYSol"))
+            inputs["InputCYSol"].SetTextWithoutNotify(celestialBody.transform.position.y.ToString());
+
+        if (inputs.ContainsKey("InputCZSol"))
+            inputs["InputCZSol"].SetTextWithoutNotify(celestialBody.transform.position.z.ToString());
+
+        if (inputs.ContainsKey("InputVXSol"))
+            inputs["InputVXSol"].SetTextWithoutNotify(celestialBody.velocity.x.ToString());
+
+        if (inputs.ContainsKey("InputVYSol"))
+            inputs["InputVYSol"].SetTextWithoutNotify(celestialBody.velocity.y.ToString());
+
+        if (inputs.ContainsKey("InputVZSol"))
+            inputs["InputVZSol"].SetTextWithoutNotify(celestialBody.velocity.z.ToString());
+
+        if (inputs.ContainsKey("InputVRXSol"))
+            inputs["InputVRXSol"].SetTextWithoutNotify(celestialBody.angularVelocity.x.ToString());
+
+        if (inputs.ContainsKey("InputVRYSol"))
+            inputs["InputVRYSol"].SetTextWithoutNotify(celestialBody.angularVelocity.y.ToString());
+
+        if (inputs.ContainsKey("InputVRZSol"))
+            inputs["InputVRZSol"].SetTextWithoutNotify(celestialBody.angularVelocity.z.ToString());
+        
+        if (inputs.ContainsKey("InputRadioSol"))
+            inputs["InputRadioSol"].SetTextWithoutNotify(sharedSettings.getRadius().ToString());
+
+    }
+
+    public void RegistrarValoresSol(SunSettings settings) {
+        if (sliders.ContainsKey("SliderNoiseScale"))
+        sliders["SliderNoiseScale"].SetValueWithoutNotify(settings.NoiseScale);
+
+        if (sliders.ContainsKey("SliderNoisePower"))
+            sliders["SliderNoisePower"].SetValueWithoutNotify(settings.NoisePower);
+
+        if (sliders.ContainsKey("SliderShaderIntensity"))
+            sliders["SliderShaderIntensity"].SetValueWithoutNotify(settings.shaderIntensity);
+
+        if (sliders.ContainsKey("SliderTwirlStrength"))
+            sliders["SliderTwirlStrength"].SetValueWithoutNotify(settings.TwirlStrength);
+
+        if (sliders.ContainsKey("SliderDistortionScale"))
+            sliders["SliderDistortionScale"].SetValueWithoutNotify(settings.DistorsionScale);
+
+        if (sliders.ContainsKey("SliderPanSpeed"))
+            sliders["SliderPanSpeed"].SetValueWithoutNotify(settings.PanSpeed.x);
+        selectorColorSol.EstablecerColor(settings.BaseColor);
     }
 
     // =========================================================================

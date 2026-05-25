@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 public class SelectorColorSol : MonoBehaviour
 {
+    [SerializeField] private EditMenuManager editMenuManager;
     [Header("Datos Guardados")]
     public Color colorSol = Color.white; // Aquí se guarda el color del sol
 
@@ -26,7 +27,7 @@ public class SelectorColorSol : MonoBehaviour
 
     private void AbrirVentanaColor()
     {
-        ColorPicker.Create(colorSol, "Color del Sol", AlCambiarColor, null, true);
+        ColorPicker.Create(colorSol, "Color del Sol", AlCambiarColor, AlSeleccionarColor, true);
     }
 
     private void AlCambiarColor(Color nuevoColor)
@@ -39,5 +40,14 @@ public class SelectorColorSol : MonoBehaviour
         {
             vistaPreviaColor.color = colorSol;
         }
+    }
+
+    private void AlSeleccionarColor(Color nuevoColor) {
+        editMenuManager.UpdateSunColor(colorSol);
+    }
+
+    public void EstablecerColor(Color color) {
+        colorSol = color;
+
     }
 }
