@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93a407f545bd38c4db0483be3effe7d1, type: 3}
   m_Name: VenusShape
   m_EditorClassIdentifier: Assembly-CSharp::ShapeSettings
-  planetRadius: 1.7
+  planetRadius: 0.86
   noiseLayers:
   - enabled: 1
     useFirstLayerAsMask: 0

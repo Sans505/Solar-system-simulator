@@ -44,7 +44,7 @@ public class SelectedBodyManager : MonoBehaviour
     private GizmoManager gizmoManager;
     private GameObject[] forceArrows;
     private bool isDoubleSelected;
-    private bool inEditMode = true;
+    private bool inEditMode = false;
 
     void Update() {
         if (selectedBodyExists) {

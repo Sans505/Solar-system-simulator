@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6b75606b3c23e54db55c2e293be7f56, type: 3}
   m_Name: SolSettings
   m_EditorClassIdentifier: Assembly-CSharp::SunSettings
-  sunRadius: 20
+  sunRadius: 109
   sunMaterial: {fileID: 2100000, guid: 5708adb0448592f469563fa1cc53970f, type: 2}
   NoiseScale: 122.04
   NoisePower: 5.42
@@ -21,5 +21,3 @@ MonoBehaviour:
   TwirlStrength: 22
   DistorsionScale: 45
   PanSpeed: {x: 0.01, y: 0.01}
-  lightIntensity: 1
-  lightRange: 293.1
